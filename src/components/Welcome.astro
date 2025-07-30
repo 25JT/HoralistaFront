@@ -1,39 +1,466 @@
----	
-import ImgCalendar from "../assets/img/Calendar-pana.svg"
-export const ruta = "http://localhost:3000";
-
-let data = null;
-let error = null;
-
-try {
-  const res = await fetch(`${ruta}/`);
-  if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-  data = await res.json();
-} catch (err) {
-  console.error("❌ Error al hacer fetch:", err); // <-- esto ayuda
-  error = err.message;
-}
-
-
 ---
-<section class="flex flex-col md:flex-row md:gap-50 gap-10 justify-center items-center min-h-[50vh] px-4 text-center md:text-left">
+import { Image } from "astro:assets";
+import ImgCalendar from "../assets/img/Calendar-pana.svg";
+import ImgMC from "../assets/img/Makeup artist-amico.svg";
+import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
+// export const ruta = "http://localhost:3000";
+
+// let data = null;
+// let error = null;
+
+// try {
+// 	const res = await fetch(`${ruta}/`);
+// 	if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+// 	data = await res.json();
+// } catch (err) {
+// 	console.error("❌ Error al hacer fetch:", err); // <-- esto ayuda
+// 	error = err.message;
+// }
+---
+
+<section
+	class="flex flex-col md:flex-row md:gap-50 gap-10 justify-center items-center min-h-[50vh] px-4 text-center md:text-left"
+>
 	<!-- Texto -->
 	<div class="flex flex-col items-center md:items-start max-w-md">
-	  <h1 id="Ptext" class="uppercase font-bold text-5xl md:text-6xl text-center text-[#ff5a5f] italic">horalista</h1>
-	  <p class="mt-4 text-base md:text-2xl text-justify   ">
-		Gestiona tu agenda y permite que tus clientes reserven citas online en segundos. Optimiza la administración del calendario y elimina las esperas.
-	  </p>
+		<h1
+			id="Ptext"
+			class="uppercase font-bold text-5xl md:text-6xl text-center text-[#ff5a5f] italic"
+		>
+			horalista
+		</h1>
+		<p id="Ptext2" class="mt-4 text-base md:text-2xl text-justify">
+			Gestiona tu agenda y permite que tus clientes reserven citas online
+			en segundos. Optimiza la administración del calendario y elimina las
+			esperas.
+		</p>
 	</div>
-  
+
 	<!-- Imagen -->
 	<div>
-	  <img src={ImgCalendar.src} alt="Logo" class="shadow-lg w-[300px] md:w-[400px] lg:w-[600px] h-auto" />
+		<Image
+			id="imgP"
+			src={ImgCalendar}
+			alt="Logo"
+			class="shadow-lg w-[300px] md:w-[400px] lg:w-[600px] h-auto"
+		/>
 	</div>
-  </section>
-  
+</section>
 
-<div class="flex gap-15  justify-center items-center align-center h-[10vh]">
-	<button class="w-50 h-10 "> INICIA AHORA</button>
+<!--boton -->
+<div class="flex gap-15 justify-center items-center align-center h-[10vh]">
+	<button class="w-50 h-10" id="btnInc"> INICIA AHORA</button>
 </div>
 
+<!--para ti-->
+<section class="md:text-5xl text-3xl">
+	<div>
+		<div class="mt-10 md:mt-40 flex justify-center">
+			<h1 id="ParaTi">PARA TI</h1>
+		</div>
+		<br />
 
+		<div
+			class="flex flex-col md:flex-row md:gap-50 gap-10 justify-center items-center px-4 text-center md:text-left"
+		>
+			<!-- Texto -->
+			<div class="flex flex-col items-center md:items-start max-w-md">
+				<h1
+					id="cliente"
+					class="uppercase font-bold text-2xl md:text-6xl text-center text-[#ff5a5f] italic"
+				>
+					CLIENTE
+				</h1>
+				<Image src={ImgMC2} alt="Cliente" id="clienteImg" />
+				<p class="mt-4 text-base md:text-2xl text-justify md:text-left">
+					Reserva cualquier servicio en un par de clics. Agenda tu
+					servicio en segundos
+				</p>
+			</div>
+
+			<!-- Texto2 -->
+			<div class="flex flex-col items-center md:items-start max-w-md">
+				<h1
+					id="Profesional"
+					class="uppercase font-bold text-2xl md:text-6xl text-center text-[#ff5a5f] italic"
+				>
+					PROFESIONAL
+				</h1>
+				<Image src={ImgMC} alt="Profesionalimg" id="Profesionalimg" />
+				<p class="mt-4 text-base md:text-2xl text-justify">
+					Administra tu agenda, cobra y haz crecer tu clientela.
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Contacto -->
+<section class="py-16 px-4 bg-gray-50" id="registro">
+	<div class="max-w-4xl mx-auto">
+		<h2
+			class="text-3xl md:text-4xl font-bold text-center text-[#ff5a5f] mb-12"
+		>
+			¡INICIA AHORA!
+		</h2>
+
+		<form
+			class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-2xl mx-auto"
+		>
+			<div class="mb-6">
+				<label
+					class="block text-gray-700 text-sm font-bold mb-2"
+					for="name"
+				>
+					Nombre
+				</label>
+				<input
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+					id="name"
+					type="text"
+					placeholder="Tu nombre"
+					required
+				/>
+			</div>
+			<div class="mb-6">
+				<label
+					class="block text-gray-700 text-sm font-bold mb-2"
+					for="lastname">Apellido</label
+				>
+				<input
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+					id="lastname"
+					type="text"
+					placeholder="Tu Apellido "
+					required
+				/>
+			</div>
+			<div class="mb-6">
+				<label
+					class="block text-gray-700 text-sm font-bold mb-2"
+					for="email"
+				>
+					Correo Electrónico
+				</label>
+				<input
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+					id="email"
+					type="email"
+					placeholder="tucorreo@ejemplo.com"
+					required
+				/>
+			</div>
+
+			<div class="mb-6">
+				<label
+					class="block text-gray-700 text-sm font-bold mb-2"
+					for="password"
+				>
+					Contraseña
+				</label>
+				<input
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+					id="password"
+					type="password"
+					placeholder="********"
+					required
+				/>
+			</div>
+
+			<div class="mb-6">
+				<label class="block text-gray-700 text-sm font-bold mb-2">
+					Rol
+				</label>
+				<div class="flex flex-col md:flex-row gap-4">
+					<label class="inline-flex items-center">
+						<input
+							type="radio"
+							class="form-radio text-[#ff5a5f]"
+							name="role"
+							value="cliente"
+							checked
+						/>
+						<span class="ml-2">Cliente</span>
+					</label>
+					<label class="inline-flex items-center">
+						<input
+							type="radio"
+							class="form-radio text-[#ff5a5f]"
+							name="role"
+							value="profesional"
+						/>
+						<span class="ml-2">Profesional</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="mb-6">
+				<label
+					class="block text-gray-700 text-sm font-bold mb-2"
+					for="phone"
+				>
+					Teléfono
+				</label>
+				<input
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+					id="phone"
+					type="tel"
+					required
+					placeholder="+57 325 256 66 871"
+				/>
+			</div>
+
+			<div class="flex items-center justify-between">
+				<button
+					class="bg-black hover:bg-[#e04e52] text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors"
+					type="submit"
+				>
+					Registrarse
+				</button>
+			</div>
+		</form>
+	</div>
+</section>
+<!-- testimonios -->
+<!-- <section class="flex col-3" >
+	<div>
+		<h1>TESTIMONIOS</h1>
+	</div>
+	<div><h1>TESTIMONIOS</h1></div>
+	<div><h1>TESTIMONIOS</h1></div>
+</section> -->
+<script>
+	import { gsap } from "gsap/dist/gsap";
+	import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+	import { ScrollSmoother } from "gsap/dist/ScrollSmoother";
+
+	// Register plugins
+	gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+
+	// Initialize animations when the component mounts
+	document.addEventListener("DOMContentLoaded", () => {
+		// Animation for Ptext - Entrance effect
+		gsap.fromTo(
+			"#Ptext",
+			{
+				opacity: 0,
+				y: 30,
+				scale: 0.95,
+			},
+			{
+				opacity: 1,
+				y: 0,
+				scale: 1,
+				duration: 1.2,
+				ease: "power2.out",
+				scrollTrigger: {
+					trigger: "#Ptext",
+					start: "top 85%",
+					toggleActions: "play none none none",
+					once: true,
+				},
+				onComplete: () => {
+					// Espera un frame para iniciar el loop (más natural)
+					requestAnimationFrame(() => {
+						gsap.to("#Ptext", {
+							x: -8,
+							duration: 2.5,
+							repeat: -1,
+							yoyo: true,
+							ease: "sine.inOut",
+						});
+					});
+				},
+			},
+		);
+		//Ptext2
+		gsap.fromTo(
+			"#Ptext2",
+			{
+				opacity: 0,
+				y: 30,
+				scale: 0.95,
+			},
+			{
+				opacity: 1,
+				y: 0,
+				scale: 1,
+				duration: 1.2,
+				ease: "power2.out",
+			},
+		);
+
+		// Animation for imgP - Entrance effect with floating
+		gsap.fromTo(
+			"#imgP",
+			{
+				opacity: 0,
+				x: 100,
+				rotation: -5,
+				scale: 0.9,
+			},
+			{
+				opacity: 1,
+				x: 0,
+				rotation: 0,
+				scale: 1,
+				duration: 1.2,
+				ease: "back.out(1.4)",
+				scrollTrigger: {
+					trigger: "#imgP",
+					start: "top 80%",
+					toggleActions: "play none none none",
+					once: true,
+				},
+				onComplete: function () {
+					// Add a subtle floating effect after entrance
+					gsap.to("#imgP", {
+						y: "+=10",
+						rotation: 2,
+						duration: 3,
+						repeat: -1,
+						yoyo: true,
+						ease: "sine.inOut",
+					});
+				},
+			},
+		);
+
+		// Animation for btnInc
+		gsap.fromTo(
+			"#btnInc",
+			{ opacity: 0, scale: 0.8 },
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 0.8,
+				scrollTrigger: {
+					trigger: "#btnInc",
+					start: "top 90%",
+					toggleActions: "play none none reverse",
+				},
+			},
+		);
+
+		// Animation for ParaTi
+		gsap.fromTo(
+			"#ParaTi",
+			{ opacity: 0, y: -30 },
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				scrollTrigger: {
+					trigger: "#ParaTi",
+					start: "top 90%",
+					toggleActions: "play none none reverse",
+				},
+			},
+		);
+
+		// Animation for cliente and clienteImg
+		gsap.fromTo(
+			["#cliente", "#clienteImg"],
+			{ opacity: 0, x: -50 },
+			{
+				opacity: 1,
+				x: 0,
+				duration: 1,
+				stagger: 0.3,
+				scrollTrigger: {
+					trigger: "#cliente",
+					start: "top 85%",
+					toggleActions: "play none none reverse",
+				},
+				onComplete: function () {
+					// Add a subtle floating effect after entrance
+					gsap.to("#clienteImg", {
+						y: "+=10",
+						rotation: 2,
+						duration: 3,
+						repeat: -1,
+						yoyo: true,
+						ease: "sine.inOut",
+					});
+				},
+			},
+		);
+
+		// Animation for Registration Form
+		gsap.utils.toArray('#registro form > *').forEach((element, i) => {
+			gsap.fromTo(element, 
+				{ 
+					opacity: 0, 
+					y: 30,
+					x: i % 2 === 0 ? -20 : 20
+				},
+				{
+					opacity: 1,
+					y: 0,
+					x: 0,
+					duration: 0.6,
+					ease: "back.out(1.2)",
+					delay: i * 0.1,
+					scrollTrigger: {
+						trigger: "#registro",
+						start: "top 80%",
+						toggleActions: "play none none none",
+						scrub: 1,
+						markers: false
+					}
+				}
+			);
+		});
+
+		// Animation for form container
+		gsap.fromTo('#registro form',
+			{ 
+				opacity: 0,
+				scale: 0.98,
+				y: 50
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				y: 0,
+				duration: 0.8,
+				ease: "power2.out",
+				scrollTrigger: {
+					trigger: "#registro",
+					start: "top 85%",
+					toggleActions: "play none none none"
+				}
+			}
+		);
+
+		// Animation for Profesional and ProfesionalId
+		gsap.fromTo(
+			["#Profesional", "#Profesionalimg"],
+			{ opacity: 0, x: 50 },
+			{
+				opacity: 1,
+				x: 0,
+				duration: 1,
+				stagger: 0.3,
+				scrollTrigger: {
+					trigger: "#Profesional",
+					start: "top 85%",
+					toggleActions: "play none none reverse",
+				},
+				onComplete: function () {
+					// Add a subtle floating effect after entrance
+					gsap.to("#Profesionalimg", {
+						y: "+=10",
+						rotation: 2,
+						duration: 3,
+						repeat: -1,
+						yoyo: true,
+						ease: "sine.inOut",
+					});
+				},
+			},
+		);
+	});
+
+	gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+</script>

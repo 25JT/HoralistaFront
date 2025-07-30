@@ -1,5 +1,6 @@
 ---
 import Logo from "../assets/Logo/lOGOPNG (1).svg";
+import { Image } from 'astro:assets';
 ---
 <nav class="relative border-2 rounded-lg shadow-md shadow-black px-4 py-2">
     <!-- Contenedor de botones alineados a la derecha -->
@@ -10,7 +11,7 @@ import Logo from "../assets/Logo/lOGOPNG (1).svg";
   
     <!-- Imagen centrada -->
     <div class="flex justify-center">
-      <img src={Logo.src} alt="Logo" height="105" width="105"/>
+      <Image src={Logo} alt="Logo" height="105" width="105"/>
     </div>
   </nav>
   
