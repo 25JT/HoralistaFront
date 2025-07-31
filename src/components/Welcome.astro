@@ -1,8 +1,10 @@
 ---
 import { Image } from "astro:assets";
+import Logo from "../assets/Logo/lOGOPNG (1).svg";
 import ImgCalendar from "../assets/img/Calendar-pana.svg";
 import ImgMC from "../assets/img/Makeup artist-amico.svg";
 import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
+import Foto from "../assets/img/fotos/foto1.jpg";
 // export const ruta = "http://localhost:3000";
 
 // let data = null;
@@ -168,30 +170,32 @@ import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
 			</div>
 
 			<div class="mb-6">
-				<label class="block text-gray-700 text-sm font-bold mb-2">
-					Rol
-				</label>
-				<div class="flex flex-col md:flex-row gap-4">
-					<label class="inline-flex items-center">
-						<input
-							type="radio"
-							class="form-radio text-[#ff5a5f]"
-							name="role"
-							value="cliente"
-							checked
-						/>
-						<span class="ml-2">Cliente</span>
-					</label>
-					<label class="inline-flex items-center">
-						<input
-							type="radio"
-							class="form-radio text-[#ff5a5f]"
-							name="role"
-							value="profesional"
-						/>
-						<span class="ml-2">Profesional</span>
-					</label>
-				</div>
+				<fieldset>
+					<legend class="block text-gray-700 text-sm font-bold mb-2"
+						>Rol</legend
+					>
+					<div class="flex flex-col md:flex-row gap-4">
+						<label class="inline-flex items-center">
+							<input
+								type="radio"
+								class="form-radio text-[#ff5a5f]"
+								name="role"
+								value="cliente"
+								checked
+							/>
+							<span class="ml-2">Cliente</span>
+						</label>
+						<label class="inline-flex items-center">
+							<input
+								type="radio"
+								class="form-radio text-[#ff5a5f]"
+								name="role"
+								value="profesional"
+							/>
+							<span class="ml-2">Profesional</span>
+						</label>
+					</div>
+				</fieldset>
 			</div>
 
 			<div class="mb-6">
@@ -222,17 +226,81 @@ import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
 	</div>
 </section>
 <!-- testimonios -->
-<!-- <section class="flex col-3" >
-	<div>
-		<h1>TESTIMONIOS</h1>
+<section class="text-center m-10 overflow-hidden">
+	<h1 class="text-2xl md:text-5xl mb-4 testimonial-title">TESTIMONIOS</h1>
+	<p class="mb-10 max-w-3xl mx-auto testimonial-subtitle">
+	  NUESTROS CLIENTES SATISFECHOS POR NUESTRO SERVICIO QUE ESPERAS NO DUDES EN UNIRTE
+	</p>
+  
+	<div class="testimonials-container flex flex-col md:flex-row md:justify-center md:gap-10 items-center">
+	  <!-- Testimonio 1 -->
+	  <div class="testimonial-card flex-1 max-w-sm mb-10 md:mb-0 transform transition-transform duration-500 hover:scale-105">
+		<div class="testimonial-image flex justify-center">
+		  <Image src={Foto} alt="Testimonio1" class="w-[200px] h-[250px] rounded-lg shadow-lg" />
+		</div>
+		<p class="testimonial-name mt-4 text-base md:text-3xl flex justify-center font-semibold">JAMES BARELA</p>
+		<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
+		<p class="testimonial-text text-center italic">"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"</p>
+	  </div>
+  
+	  <!-- Testimonio 2 -->
+	  <div class="testimonial-card flex-1 max-w-sm mb-10 md:mb-0 transform transition-transform duration-500 hover:scale-105">
+		<div class="testimonial-image flex justify-center">
+		  <Image src={Foto} alt="Testimonio2" class="w-[200px] h-[250px] rounded-lg shadow-lg" />
+		</div>
+		<p class="testimonial-name mt-4 text-base md:text-3xl flex justify-center font-semibold">JAMES BARELA</p>
+		<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
+		<p class="testimonial-text text-center italic">"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"</p>
+	  </div>
+  
+	  <!-- Testimonio 3 -->
+	  <div class="testimonial-card flex-1 max-w-sm transform transition-transform duration-500 hover:scale-105">
+		<div class="testimonial-image flex justify-center">
+		  <Image src={Foto} alt="Testimonio3" class="w-[200px] h-[250px] rounded-lg shadow-lg" />
+		</div>
+		<p class="testimonial-name mt-4 text-base md:text-3xl flex justify-center font-semibold">JAMES BARELA</p>
+		<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
+		<p class="testimonial-text text-center italic">"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"</p>
+	  </div>
 	</div>
-	<div><h1>TESTIMONIOS</h1></div>
-	<div><h1>TESTIMONIOS</h1></div>
-</section> -->
+</section>
+  
 <script>
 	import { gsap } from "gsap/dist/gsap";
 	import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 	import { ScrollSmoother } from "gsap/dist/ScrollSmoother";
+	import Lenis from "lenis";
+
+	// Scroll suave
+	const lenis = new Lenis({
+		duration: 1.2,
+		easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+		smooth: true,
+	});
+
+	function raf(time) {
+		lenis.raf(time);
+		requestAnimationFrame(raf);
+	}
+	requestAnimationFrame(raf);
+	// ScrollTrigger + Lenis
+	gsap.registerPlugin(ScrollTrigger);
+	lenis.on("scroll", ScrollTrigger.update);
+
+	ScrollTrigger.scrollerProxy(document.body, {
+		scrollTop(value) {
+			return arguments.length ? lenis.scrollTo(value) : window.scrollY;
+		},
+		getBoundingClientRect() {
+			return {
+				top: 0,
+				left: 0,
+				width: window.innerWidth,
+				height: window.innerHeight,
+			};
+		},
+		pinType: document.body.style.transform ? "transform" : "fixed",
+	});
 
 	// Register plugins
 	gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
@@ -386,38 +454,114 @@ import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
 			},
 		);
 
-		// Animation for Registration Form
-		gsap.utils.toArray('#registro form > *').forEach((element, i) => {
-			gsap.fromTo(element, 
+		// Animation for Testimonials
+		// Title and Subtitle
+		gsap.fromTo('.testimonial-title', 
+			{ opacity: 0, y: 50 },
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				scrollTrigger: {
+					trigger: '.testimonial-title',
+					start: 'top 90%',
+					toggleActions: 'play none none none'
+				}
+			}
+		);
+
+		gsap.fromTo('.testimonial-subtitle', 
+			{ opacity: 0, y: 30 },
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				delay: 0.3,
+				scrollTrigger: {
+					trigger: '.testimonial-subtitle',
+					start: 'top 85%',
+					toggleActions: 'play none none none'
+				}
+			}
+		);
+
+		// Testimonial cards animation
+		const testimonialCards = gsap.utils.toArray('.testimonial-card');
+		testimonialCards.forEach((card, i) => {
+			gsap.fromTo(card,
 				{ 
 					opacity: 0, 
+					y: 100,
+					rotationY: i % 2 === 0 ? -15 : 15
+				},
+				{
+					opacity: 1,
+					y: 0,
+					rotationY: 0,
+					duration: 0.8,
+					ease: 'back.out(1.7)',
+					delay: 0.5 + (i * 0.2),
+					scrollTrigger: {
+						trigger: card,
+						start: 'top 85%',
+						toggleActions: 'play none none none',
+						markers: false
+					}
+				}
+			);
+
+			// Hover effect
+			card.addEventListener('mouseenter', () => {
+				gsap.to(card, { 
+					y: -10, 
+					duration: 0.3,
+					ease: 'power2.out'
+				});
+			});
+
+			card.addEventListener('mouseleave', () => {
+				gsap.to(card, { 
+					y: 0, 
+					duration: 0.3,
+					ease: 'power2.out'
+				});
+			});
+		});
+
+		// Animation for Registration Form
+		gsap.utils.toArray("#registro form > *").forEach((element, i) => {
+			gsap.fromTo(
+				element,
+				{
+					opacity: 0,
 					y: 30,
-					x: i % 2 === 0 ? -20 : 20
+					x: i % 2 === 0 ? -20 : 20,
 				},
 				{
 					opacity: 1,
 					y: 0,
 					x: 0,
-					duration: 0.6,
-					ease: "back.out(1.2)",
+					duration: 0.8,
+					ease: "power3.out",
 					delay: i * 0.1,
 					scrollTrigger: {
-						trigger: "#registro",
+						trigger: element,
 						start: "top 80%",
 						toggleActions: "play none none none",
 						scrub: 1,
-						markers: false
-					}
-				}
+						markers: false,
+					},
+				},
 			);
 		});
 
 		// Animation for form container
-		gsap.fromTo('#registro form',
-			{ 
+		gsap.fromTo(
+			"#registro form",
+			{
 				opacity: 0,
 				scale: 0.98,
-				y: 50
+				y: 50,
 			},
 			{
 				opacity: 1,
@@ -428,9 +572,9 @@ import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
 				scrollTrigger: {
 					trigger: "#registro",
 					start: "top 85%",
-					toggleActions: "play none none none"
-				}
-			}
+					toggleActions: "play none none none",
+				},
+			},
 		);
 
 		// Animation for Profesional and ProfesionalId
