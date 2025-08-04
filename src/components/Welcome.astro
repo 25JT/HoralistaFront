@@ -53,7 +53,7 @@ try {
 
 <!--boton -->
 <div class="flex gap-15 justify-center items-center align-center h-[10vh]">
-	<button class="w-50 h-10" id="btnInc"> INICIA AHORA</button>
+	<button class="w-50 h-10 uppercase" id="btnReg"> Registrate</button>
 </div>
 
 <!--para ti-->
@@ -305,10 +305,11 @@ try {
 		</div>
 	</div>
 </section>
+
 <!-- JS -->
 <script>
 	import { ruta } from "./Welcome.astro";
-	// Modifica tu script así:
+
 	const formData = document.getElementById("registro");
 	let formSubmitted = false; // Bandera para controlar envíos
 
@@ -357,6 +358,20 @@ try {
 		// Marcar el formulario como ya procesado
 		formData.dataset.listenerAdded = "true";
 	}
+	//Desplazamiento al formualrio
+
+	// Scroll suave al formulario de registro
+	document.addEventListener("DOMContentLoaded", function () {
+		const btnReg = document.getElementById("btnReg");
+		const registro = document.getElementById("registro1");
+		if (btnReg && registro) {
+			btnReg.addEventListener("click", function (e) {
+				e.preventDefault();
+				registro.scrollIntoView({ behavior: "smooth", block: "start" });
+			});
+		}
+	});
+
 
 	//Animaciones
 
@@ -490,14 +505,14 @@ try {
 
 		// Animation for btnInc
 		gsap.fromTo(
-			"#btnInc",
+			"#btnReg",
 			{ opacity: 0, scale: 0.8 },
 			{
 				opacity: 1,
 				scale: 1,
 				duration: 0.8,
 				scrollTrigger: {
-					trigger: "#btnInc",
+					trigger: "#btnReg",
 					start: "top 90%",
 					toggleActions: "play none none reverse",
 				},
