@@ -1,7 +1,7 @@
 ---
 import Logo from "../assets/Logo/lOGOPNG (1).svg";
 import { Image } from "astro:assets";
-import { ruta } from "./Welcome.astro";
+
 ---
 
 <nav class="relative border-2 rounded-lg shadow-md shadow-black px-4 py-2">
@@ -13,6 +13,9 @@ import { ruta } from "./Welcome.astro";
     <button class="md:px-4 md:py-2 py-0 px-0 uppercase" id="btnIniciar"
       >Inicia sesión</button
     >
+    <button class="md:px-4 md:py-2 py-0 px-0 uppercase" id="btnCerrar"
+    >Cerrar sesión</button
+  >
   </div>
 
   <!-- Imagen centrada -->
@@ -109,6 +112,32 @@ import { ruta } from "./Welcome.astro";
 </nav>
 
 <script>
+import { ruta } from "./Welcome.astro";
+
+//verificar estado de sesion
+const userid = sessionStorage.getItem("Id");
+const role = sessionStorage.getItem("Role");
+
+let btnIniciar = document.getElementById("btnIniciar");
+let btnCerrar = document.getElementById("btnCerrar");
+
+if(userid == null){
+  
+  
+  btnIniciar.classList.remove("hidden");
+  btnCerrar.classList.add("hidden");
+}else{
+  
+  btnIniciar.classList.add("hidden");
+  btnCerrar.classList.remove("hidden");
+  document.getElementById("btnCerrar").addEventListener("click", function () {
+    sessionStorage.clear();
+    location.href = "/";
+  });
+}
+
+
+
   //modal
   document.addEventListener("DOMContentLoaded", function () {
     const btnIniciar = document.getElementById("btnIniciar");
@@ -153,7 +182,7 @@ import { ruta } from "./Welcome.astro";
   const formData = document.getElementById("loginForm");
   let formSubmitted = false; // Bandera para controlar envíos
   const correo = document.getElementById("loginEmail");
-  const contraseña = document.getElementById("loginPassword");
+  const contrasena = document.getElementById("loginPassword");
   const forgotEmail = document.getElementById("forgotEmail");
 
 
@@ -168,13 +197,17 @@ import { ruta } from "./Welcome.astro";
         },
         body: JSON.stringify({
           correo: correo.value,
-          contraseña: contraseña.value,
+          contrasena: contrasena.value,
         }),
       })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+          sessionStorage.setItem("Id", data.id);
+          sessionStorage.setItem("Role", data.role);
+          
           if (data.role === "cliente") {
+             
             location.href = "PrincipalCliente";
           } else {
             location.href = "RegNegocio";
