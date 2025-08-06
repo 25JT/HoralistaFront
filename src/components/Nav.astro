@@ -1,7 +1,6 @@
 ---
 import Logo from "../assets/Logo/lOGOPNG (1).svg";
 import { Image } from "astro:assets";
-
 ---
 
 <nav class="relative border-2 rounded-lg shadow-md shadow-black px-4 py-2">
@@ -14,8 +13,8 @@ import { Image } from "astro:assets";
       >Inicia sesión</button
     >
     <button class="md:px-4 md:py-2 py-0 px-0 uppercase" id="btnCerrar"
-    >Cerrar sesión</button
-  >
+      >Cerrar sesión</button
+    >
   </div>
 
   <!-- Imagen centrada -->
@@ -23,7 +22,7 @@ import { Image } from "astro:assets";
     <Image
       src={Logo}
       alt="Logo"
-      class="md:w-50 md:h-50 h-20 w-20"
+      class="md:w-20 md:h-20 h-20 w-20"
       priority={true}
     />
   </div>
@@ -112,31 +111,26 @@ import { Image } from "astro:assets";
 </nav>
 
 <script>
-import { ruta } from "./Welcome.astro";
+  import { ruta } from "./Welcome.astro";
 
-//verificar estado de sesion
-const userid = sessionStorage.getItem("Id");
-const role = sessionStorage.getItem("Role");
+  //verificar estado de sesion
+  const userid = sessionStorage.getItem("Id");
+  const role = sessionStorage.getItem("Role");
 
-let btnIniciar = document.getElementById("btnIniciar");
-let btnCerrar = document.getElementById("btnCerrar");
+  let btnIniciar = document.getElementById("btnIniciar");
+  let btnCerrar = document.getElementById("btnCerrar");
 
-if(userid == null){
-  
-  
-  btnIniciar.classList.remove("hidden");
-  btnCerrar.classList.add("hidden");
-}else{
-  
-  btnIniciar.classList.add("hidden");
-  btnCerrar.classList.remove("hidden");
-  document.getElementById("btnCerrar").addEventListener("click", function () {
-    sessionStorage.clear();
-    location.href = "/";
-  });
-}
-
-
+  if (userid == null) {
+    btnIniciar.classList.remove("hidden");
+    btnCerrar.classList.add("hidden");
+  } else {
+    btnIniciar.classList.add("hidden");
+    btnCerrar.classList.remove("hidden");
+    document.getElementById("btnCerrar").addEventListener("click", function () {
+      sessionStorage.clear();
+      location.href = "/";
+    });
+  }
 
   //modal
   document.addEventListener("DOMContentLoaded", function () {
@@ -185,11 +179,10 @@ if(userid == null){
   const contrasena = document.getElementById("loginPassword");
   const forgotEmail = document.getElementById("forgotEmail");
 
-
   if (formData && !formData.dataset.listenerAdded) {
     formData.addEventListener("submit", (e) => {
       e.preventDefault();
-      
+
       fetch(`${ruta}/login`, {
         method: "POST",
         headers: {
@@ -200,31 +193,36 @@ if(userid == null){
           contrasena: contrasena.value,
         }),
       })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          sessionStorage.setItem("Id", data.id);
-          sessionStorage.setItem("Role", data.role);
-          
-          if (data.role === "cliente") {
-             
-            location.href = "PrincipalCliente";
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            sessionStorage.setItem("Id", data.id);
+            sessionStorage.setItem("Role", data.role);
+            sessionStorage.setItem("StatusNegocio", data.negocio_creado);
+
+            console.log(data.negocio_creado);
+            
+
+            if (data.role === "profesional") {
+              if (data.negocio_creado === 1) {
+                location.href = "MenuNegocio";
+              } else {
+                location.href = "RegNegocio";
+              }
+            } else if (data.role === "cliente") {
+              location.href = "PrincipalCliente";
+            }
           } else {
-            location.href = "RegNegocio";
+            alert(data.message);
           }
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Error al enviar el formulario");
-      })
-      .finally(() => {
-        formSubmitted = false;
-      });
-      
-      
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Error al enviar el formulario");
+        })
+        .finally(() => {
+          formSubmitted = false;
+        });
     });
     formSubmitted = true;
   }

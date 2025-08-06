@@ -1,0 +1,263 @@
+---
+import Business from "../assets/img/Business.svg";
+---
+
+<div class="align-center text-center justify-center">
+    <h1 class="uppercase text-5xl m-5">Registro de negocio</h1>
+</div>
+
+<div class="container mx-auto">
+    <div
+        class="flex flex-col-reverse lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden"
+        id="registroNegocio"
+    >
+        <!-- Imagen -->
+        <div class="lg:w-1/2">
+            <img
+                src={Business.src}
+                alt="Registro"
+                class="w-full h-full object-contain"
+            />
+        </div>
+
+        <!-- Formulario -->
+        <div class="lg:w-1/2 p-8 space-y-6">
+            <form class="space-y-4" id="registroNegocio">
+                <div>
+                    <label
+                        for="nombre_establecimiento"
+                        class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                        >Nombre del Establecimiento</label
+                    >
+                    <input
+                        id="nombre_establecimiento"
+                        type="text"
+                        name="nombre_establecimiento"
+                        class="mt-1 w-full border rounded-md p-2"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label
+                        for="telefono_establecimiento"
+                        class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                        >Teléfono</label
+                    >
+                    <input
+                        id="telefono_establecimiento"
+                        type="text"
+                        name="telefono_establecimiento"
+                        class="mt-1 w-full border rounded-md p-2"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label
+                        for="direccion"
+                        class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                        >Dirección</label
+                    >
+                    <input
+                        id="direccion"
+                        type="text"
+                        name="direccion"
+                        class="mt-1 w-full border rounded-md p-2"
+                        required
+                    />
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label
+                            for="hora_inicio"
+                            class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                            >Hora Inicio</label
+                        >
+                        <input
+                            id="hora_inicio"
+                            type="time"
+                            name="hora_inicio"
+                            class="mt-1 w-full border rounded-md p-2"
+                            required
+                        />
+                    </div>
+                    <div class="w-1/2">
+                        <label
+                            for="hora_fin"
+                            class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                            >Hora Fin</label
+                        >
+                        <input
+                            id="hora_fin"
+                            type="time"
+                            name="hora_fin"
+                            class="mt-1 w-full border rounded-md p-2"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <span
+                        class="block text-sm font-medium text-gray-600 mb-1 uppercase font-[Poppins]"
+                        >Días de Trabajo</span
+                    >
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="lunes"
+                                name="dias_trabajo"
+                                value="Lunes"
+                                class="mr-1"
+                                
+                            />
+                            <label for="lunes" class="uppercase font-[Poppins]"
+                                >Lunes</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="martes"
+                                name="dias_trabajo"
+                                value="Martes"
+                                class="mr-1"
+                            />
+                            <label for="martes" class="uppercase font-[Poppins]"
+                                >Martes</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="miercoles"
+                                name="dias_trabajo"
+                                value="Miércoles"
+                                class="mr-1"
+                            />
+                            <label
+                                for="miercoles"
+                                class="uppercase font-[Poppins]"
+                                >Miércoles</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="jueves"
+                                name="dias_trabajo"
+                                value="Jueves"
+                                class="mr-1"
+                            />
+                            <label for="jueves" class="uppercase font-[Poppins]"
+                                >Jueves</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="viernes"
+                                name="dias_trabajo"
+                                value="Viernes"
+                                class="mr-1"
+                            />
+                            <label
+                                for="viernes"
+                                class="uppercase font-[Poppins]">Viernes</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="sabado"
+                                name="dias_trabajo"
+                                value="Sábado"
+                                class="mr-1"
+                            />
+                            <label for="sabado" class="uppercase font-[Poppins]"
+                                >Sábado</label
+                            >
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="domingo"
+                                name="dias_trabajo"
+                                value="Domingo"
+                                class="mr-1"
+                            />
+                            <label
+                                for="domingo"
+                                class="uppercase font-[Poppins]">Domingo</label
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button
+                        type="submit"
+                        class="w-full bg-black hover:bg-[#e04e52] text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors uppercase font-[Poppins]"
+                    >
+                        Continuar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    import { animar } from "../assets/Animaciones/animaRegSecion.js";
+    import { ruta } from "./Welcome.astro";
+    animar();
+    //  import {ruta} from "../assets/Animaciones/animaRegSecion.js";
+    //envio de datos de negocio
+    document
+        .getElementById("registroNegocio")
+        ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const userid = sessionStorage.getItem("Id");
+            const role = sessionStorage.getItem("Role");
+            // Capturamos todos los días marcados como array
+            const diasSeleccionados = formData.getAll("dias_trabajo");
+
+            // Obtenemos el resto de campos
+            const data = {
+                nombre_establecimiento: formData.get("nombre_establecimiento"),
+                telefono_establecimiento: formData.get(
+                    "telefono_establecimiento",
+                ),
+                direccion: formData.get("direccion"),
+                hora_inicio: formData.get("hora_inicio"),
+                hora_fin: formData.get("hora_fin"),
+                dias_trabajo: diasSeleccionados, // ya es un array
+            };
+
+            fetch(`${ruta}/registroNegocio`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ data, userid }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert("Registro exitoso");
+                        location.href = "/MenuNegocio";
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                    alert("Error al enviar el formulario");
+                });
+        });
+</script>
