@@ -2,17 +2,16 @@
 import Nav from "../components/Nav.astro";
 import LayoutPrincipal from "../layouts/LayoutPrincipal.astro";
 import '../styles/global.css'
+import BodyPrinCliente from "../components/BodyPrinCliente.astro";
 ---
 
 <LayoutPrincipal>
 <Nav/>
 <br>
+<BodyPrinCliente/>
 </LayoutPrincipal>
-<div class="text-center">
-    <h1 class="text-5xl">Principal Clientes</h1>
-</div>
 
-<button onclick="location.href='/'">Volver</button>
+
 
 <script>
 const userid = sessionStorage.getItem("Id");

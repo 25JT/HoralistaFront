@@ -99,6 +99,48 @@ import Business from "../assets/img/Business.svg";
                     </div>
                 </div>
 
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label
+                        for="precio"
+                        class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
+                      >Precio</label>
+                      <input
+                        id="precio"
+                        type="text"
+                        name="precio"
+                        class="mt-1 w-full border rounded-md p-2"
+                        required
+                        placeholder="$ 1.000"
+                      />
+                    </div>
+                  
+                    <div class="w-1/2">
+                      <label class="text-sm font-medium text-gray-600 uppercase font-[Poppins] mb-1">Tipo de servicio</label>
+                      <div>
+                        <input
+                          type="radio"
+                          id="barbero"
+                          name="tipo_servicio"
+                          value="barbero"
+                          class="mr-1"
+                        />
+                        <label for="barbero" class="uppercase font-[Poppins]">BARBERO</label>
+                        <br />
+                        <input
+                          type="radio"
+                          id="estilista"
+                          name="tipo_servicio"
+                          value="estilista"
+                          class="mr-1"
+                        />
+                        <label for="estilista" class="uppercase font-[Poppins]">ESTILISTA FEMENINA</label>
+                      </div>
+                    </div>
+                  </div>
+                  
+
                 <div>
                     <span
                         class="block text-sm font-medium text-gray-600 mb-1 uppercase font-[Poppins]"
@@ -112,7 +154,6 @@ import Business from "../assets/img/Business.svg";
                                 name="dias_trabajo"
                                 value="Lunes"
                                 class="mr-1"
-                                
                             />
                             <label for="lunes" class="uppercase font-[Poppins]"
                                 >Lunes</label
@@ -186,7 +227,7 @@ import Business from "../assets/img/Business.svg";
                                 type="checkbox"
                                 id="domingo"
                                 name="dias_trabajo"
-                                value="Domingo"
+                                value="domingo"
                                 class="mr-1"
                             />
                             <label
@@ -214,6 +255,38 @@ import Business from "../assets/img/Business.svg";
     import { animar } from "../assets/Animaciones/animaRegSecion.js";
     import { ruta } from "./Welcome.astro";
     animar();
+    //formato cop 
+    const precioInput = document.getElementById('precio');
+
+precioInput.addEventListener('input', (e) => {
+  // Remueve todo lo que no sea dígito
+  let value = e.target.value.replace(/\D/g, '');
+
+  // Limita el número máximo a 100000
+  if (Number(value) > 100000) {
+    value = '100000';
+  }
+
+  // Aplica formato
+  const formatter = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+  });
+
+  if (value) {
+    const formatted = formatter.format(Number(value));
+    e.target.value = formatted;
+
+    // Si el formateado supera 8 caracteres, recorta
+    if (formatted.length > 9) {
+      // corta desde el final para conservar los dígitos más significativos
+      e.target.value = formatted.slice(0, 9);
+    }
+  } else {
+    e.target.value = '';
+  }
+});
     //  import {ruta} from "../assets/Animaciones/animaRegSecion.js";
     //envio de datos de negocio
     document
@@ -230,14 +303,17 @@ import Business from "../assets/img/Business.svg";
             // Obtenemos el resto de campos
             const data = {
                 nombre_establecimiento: formData.get("nombre_establecimiento"),
-                telefono_establecimiento: formData.get(
-                    "telefono_establecimiento",
-                ),
+                telefono_establecimiento: formData.get("telefono_establecimiento",),
                 direccion: formData.get("direccion"),
                 hora_inicio: formData.get("hora_inicio"),
                 hora_fin: formData.get("hora_fin"),
                 dias_trabajo: diasSeleccionados, // ya es un array
+                tipo_servicio: formData.get("tipo_servicio"),
+                precio: formData.get("precio"),
+
             };
+
+            
 
             fetch(`${ruta}/registroNegocio`, {
                 method: "POST",

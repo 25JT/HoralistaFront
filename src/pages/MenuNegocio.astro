@@ -11,3 +11,25 @@ import "../styles/global.css"
         <h1 class="uppercase text-5xl m-5">Menu de negocio</h1>
     </div>
 </LayoutMenuNegocio>
+
+
+<script>
+    const userid = sessionStorage.getItem("Id");
+const role = sessionStorage.getItem("Role");
+
+console.log(userid);
+console.log(role);
+
+
+    
+if (role !== "profesional") {
+        location.href = "/";
+    }
+    if (!userid) {
+        location.href = "/";
+    }
+    
+    console.log('Id: ', userid);
+    console.log('Role: ', role);
+    
+</script>
