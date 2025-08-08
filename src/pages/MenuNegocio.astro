@@ -2,14 +2,13 @@
 import LayoutMenuNegocio from "../layouts/LayoutMenuNegocio.astro";
 import Nav from "../components/Nav.astro";
 import "../styles/global.css"
+import BodyMenuNegocio from "../components/BodyMenuNegocio.astro";
 ---
 
 <LayoutMenuNegocio>
     <Nav/>
     <br>
-    <div class="text-center">
-        <h1 class="uppercase text-5xl m-5">Menu de negocio</h1>
-    </div>
+    <BodyMenuNegocio/>
 </LayoutMenuNegocio>
 
 
@@ -17,8 +16,7 @@ import "../styles/global.css"
     const userid = sessionStorage.getItem("Id");
 const role = sessionStorage.getItem("Role");
 
-console.log(userid);
-console.log(role);
+
 
 
     

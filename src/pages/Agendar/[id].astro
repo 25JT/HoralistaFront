@@ -1,0 +1,15 @@
+---
+export const prerender = false;
+const { id } = Astro.params;
+const servicio = { id, nombre: `Barbero con ID ${id}` };
+import "../styles/global.css"
+---
+
+<h1>{servicio.nombre}</h1>
+
+<h2 id="id"></h2>
+
+<script>
+    const userid = sessionStorage.getItem("Id");
+    document.getElementById("id").textContent = userid;
+</script>

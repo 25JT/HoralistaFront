@@ -1,0 +1,72 @@
+---
+
+---
+
+<div class="text-center mb-15">
+    <h1 class="uppercase text-5xl m-5">Menu de negocio</h1>
+</div>
+<div class="overflow-x-auto md:overflow-visible">
+    <table class="hidden md:table w-full border border-gray-300 text-center">
+        <thead class="bg-white">
+            <tr class="text-[#ff5a5f] font-semibold">
+                <th class="border border-gray-300 px-4 py-2">HORA</th>
+                <th class="border border-gray-300 px-4 py-2">FECHA</th>
+                <th class="border border-gray-300 px-4 py-2">CLIENTE</th>
+                <th class="border border-gray-300 px-4 py-2">MENSAJE</th>
+                <th class="border border-gray-300 px-4 py-2">CONFIRMACIÓN</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body">
+            <tr class="fila">
+                <td class="border border-gray-300 px-4 py-2">1:00 PM</td>
+                <td class="border border-gray-300 px-4 py-2">23/07/2025</td>
+                <td class="border border-gray-300 px-4 py-2">MARIA</td>
+                <td class="border border-gray-300 px-4 py-2">UÑAS</td>
+                <td class="border border-gray-300 px-4 py-2 text-green-500">✅</td>
+            </tr>
+            <tr class="fila">
+                <td class="border border-gray-300 px-4 py-2">2:00 PM</td>
+                <td class="border border-gray-300 px-4 py-2">23/07/2025</td>
+                <td class="border border-gray-300 px-4 py-2">LINA</td>
+                <td class="border border-gray-300 px-4 py-2">UÑAS</td>
+                <td class="border border-gray-300 px-4 py-2 text-red-500">❌</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Vista móvil tipo tarjetas -->
+    <div class="md:hidden space-y-4 p-4">
+        <div class="tarjeta bg-white border border-gray-300 rounded-lg p-4 shadow text-center">
+            <p><span class="font-semibold text-[#ff5a5f]">HORA:</span> 1:00 PM</p>
+            <p><span class="font-semibold text-[#ff5a5f]">FECHA:</span> 23/07/2025</p>
+            <p><span class="font-semibold text-[#ff5a5f]">CLIENTE:</span> MARIA</p>
+            <p><span class="font-semibold text-[#ff5a5f]">MENSAJE:</span> UÑAS</p>
+            <p><span class="font-semibold text-[#ff5a5f]">CONFIRMACIÓN:</span> ✅</p>
+        </div>
+        <div class="tarjeta bg-white border border-gray-300 rounded-lg p-4 shadow text-center">
+            <p><span class="font-semibold text-[#ff5a5f]">HORA:</span> 2:00 PM</p>
+            <p><span class="font-semibold text-[#ff5a5f]">FECHA:</span> 23/07/2025</p>
+            <p><span class="font-semibold text-[#ff5a5f]">CLIENTE:</span> LINA</p>
+            <p><span class="font-semibold text-[#ff5a5f]">MENSAJE:</span> UÑAS</p>
+            <p><span class="font-semibold text-[#ff5a5f]">CONFIRMACIÓN:</span> ❌</p>
+        </div>
+    </div>
+
+
+       <!-- Ver más -->
+       <div class="text-center py-4">
+        <span class="text-[#ff5a5f] italic cursor-pointer hover:underline">Ver más...</span>
+    </div>
+
+
+<script>
+
+import { animar } from "../assets/Animaciones/animBodyMenuNeg.js";
+import { ruta } from "./Welcome.astro";
+animar();
+
+
+//fetch(`${ruta}/api/Reservas`)
+
+   
+</script>

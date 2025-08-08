@@ -3,166 +3,183 @@ import Logo from "../assets/Logo/lOGOPNG (1).svg";
 import { Image } from "astro:assets";
 ---
 
-<nav class="relative border-2 rounded-lg shadow-md shadow-black px-4 py-2">
-  <!-- Contenedor de botones alineados a la derecha -->
-  <div
-    class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col md:flex-row gap-2 md:gap-4 items-end md:items-center"
-  >
-    <button class="px-4 py-2 uppercase">BLOG</button>
-    <button class="md:px-4 md:py-2 py-0 px-0 uppercase" id="btnIniciar"
-      >Inicia sesión</button
-    >
-    <button class="md:px-4 md:py-2 py-0 px-0 uppercase" id="btnCerrar"
-      >Cerrar sesión</button
-    >
+<nav class="relative border-2 rounded-lg shadow-md shadow-black px-4 py-2 flex items-center justify-between">
+  <!-- Botón hamburguesa -->
+  <button id="menuToggle" class="hidden text-2xl" title="Menú">
+    ☰
+  </button>
+
+  <!-- Logo centrado -->
+  <div class="flex-1 flex justify-center">
+    <Image src={Logo} alt="Logo" class="md:w-20 md:h-20 h-20 w-20" priority={true} />
   </div>
 
-  <!-- Imagen centrada -->
-  <div class="flex justify-center">
-    <Image
-      src={Logo}
-      alt="Logo"
-      class="md:w-20 md:h-20 h-20 w-20"
-      priority={true}
-    />
-  </div>
+  <!-- Botones derecha -->
+<div class="hidden md:flex gap-4 items-center" id="desktopButtons">
+  <button class="px-4 py-2 uppercase">BLOG</button>
+  <button id="btnIniciar" class="px-4 py-2 uppercase hidden">Inicia sesión</button>
+  <button id="btnCerrar" class="px-4 py-2 uppercase hidden">Cerrar sesión</button>
+</div>
 
-  <!-- Menú desplegable de inicio de sesión -->
-  <div
-    id="loginDropdown"
-    class="hidden fixed top-0 left-0 w-full h-full bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50"
-  >
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-xs p-6 relative">
-      <button
-        id="closeLogin"
-        class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
-        >&times;</button
-      >
-      <!-- Formulario de login -->
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <label
-            for="loginEmail"
-            class="block text-sm font-semibold text-gray-700"
-            >Correo electrónico</label
-          >
-          <input
-            type="email"
-            id="loginEmail"
-            required
-            class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]"
-            placeholder="usuario@correo.com"
-          />
-        </div>
-        <div>
-          <label
-            for="loginPassword"
-            class="block text-sm font-semibold text-gray-700">Contraseña</label
-          >
-          <input
-            type="password"
-            id="loginPassword"
-            required
-            class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]"
-            placeholder="********"
-          />
-        </div>
-        <button
-          type="submit"
-          class="w-full bg-[#ff5a5f] text-white font-bold py-2 rounded hover:bg-[#e04e52] transition"
-          >Ingresar</button
-        >
-      </form>
-      <div class="mt-4 text-center">
-        <button id="showForgot" class="text-[#000000] hover:underline text-sm"
-          >Olvidé la contraseña</button
-        >
+<!-- Botón iniciar sesión en móviles -->
+<button id="btnIniciarMobile" class="md:hidden px-4 py-2 uppercase hidden">Inicia sesión</button>
+
+
+<!-- Sidebar -->
+<div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gradient-to-b from-white via-white to-[#ff5a5f] shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
+  <div class="flex justify-between items-center p-4 border-b">
+    <h2 class="font-bold text-[#ff5a5f] text-3xl">Menú</h2>
+    <button id="closeSidebar" class="text-2xl">&times;</button>
+  </div>
+  <div class="p-4 space-y-4">
+    <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded">Mi Negocio</button>
+    <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded">Opción 2</button>
+    <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded">Opción 3</button>
+    <hr>
+    <!-- Cerrar sesión -->
+    <button id="btnCerrarSidebar" class="w-full text-left px-4 py-2 hover:bg-red-50 rounded text-[#ff5a5f]">
+      Cerrar sesión
+    </button>
+  </div>
+</div>
+
+<!-- Fondo desenfocado -->
+<div id="overlay" class="hidden fixed inset-0 bg-opacity-40 backdrop-blur-sm z-40"></div>
+
+<!-- Modal de inicio de sesión (igual al original) -->
+<div
+  id="loginDropdown"
+  class="hidden fixed top-0 left-0 w-full h-full bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-xs p-6 relative">
+    <button id="closeLogin" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl">&times;</button>
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label for="loginEmail" class="block text-sm font-semibold text-gray-700">Correo electrónico</label>
+        <input type="email" id="loginEmail" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]" placeholder="usuario@correo.com" />
       </div>
-      <!-- Formulario de recuperación -->
-      <form id="forgotForm" class="space-y-4 hidden mt-2">
-        <div>
-          <label
-            for="forgotEmail"
-            class="block text-sm font-semibold text-gray-700"
-            >Introduce tu correo para restablecer</label
-          >
-          <input
-            type="email"
-            id="forgotEmail"
-            required
-            class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]"
-            placeholder="usuario@correo.com"
-          />
-        </div>
-        <button
-          type="submit"
-          class="w-full bg-[#ff5a5f] text-white font-bold py-2 rounded hover:bg-[#e04e52] transition"
-          >Enviar enlace</button
-        >
-        <button
-          type="button"
-          id="backToLogin"
-          class="w-full mt-2 text-gray-500 hover:underline text-xs"
-          >Volver al inicio de sesión</button
-        >
-      </form>
+      <div>
+        <label for="loginPassword" class="block text-sm font-semibold text-gray-700">Contraseña</label>
+        <input type="password" id="loginPassword" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]" placeholder="********" />
+      </div>
+      <button type="submit" class="w-full bg-[#ff5a5f] text-white font-bold py-2 rounded hover:bg-[#e04e52] transition">Ingresar</button>
+    </form>
+    <div class="mt-4 text-center">
+      <button id="showForgot" class="text-[#000000] hover:underline text-sm">Olvidé la contraseña</button>
     </div>
+    <form id="forgotForm" class="space-y-4 hidden mt-2">
+      <div>
+        <label for="forgotEmail" class="block text-sm font-semibold text-gray-700">Introduce tu correo para restablecer</label>
+        <input type="email" id="forgotEmail" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#ff5a5f]" placeholder="usuario@correo.com" />
+      </div>
+      <button type="submit" class="w-full bg-[#ff5a5f] text-white font-bold py-2 rounded hover:bg-[#e04e52] transition">Enviar enlace</button>
+      <button type="button" id="backToLogin" class="w-full mt-2 text-gray-500 hover:underline text-xs">Volver al inicio de sesión</button>
+    </form>
   </div>
-</nav>
+</div>
 
 <script>
   import { ruta } from "./Welcome.astro";
 
-  //verificar estado de sesion
   const userid = sessionStorage.getItem("Id");
   const role = sessionStorage.getItem("Role");
 
-  let btnIniciar = document.getElementById("btnIniciar");
-  let btnCerrar = document.getElementById("btnCerrar");
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const closeSidebar = document.getElementById("closeSidebar");
 
-  if (userid == null) {
+  const btnCerrar = document.getElementById("btnCerrar");
+  const btnIniciar = document.getElementById("btnIniciar");
+
+  const btnIniciarMobile = document.getElementById("btnIniciarMobile");
+
+if (!userid) {
+  btnIniciar.classList.remove("hidden");
+  btnIniciarMobile.classList.remove("hidden");
+  btnCerrar.classList.add("hidden");
+} else {
+  btnIniciar.classList.add("hidden");
+  btnIniciarMobile.classList.add("hidden");
+  btnCerrar.classList.remove("hidden");
+  btnCerrar.addEventListener("click", cerrarSesion);
+}
+
+function cerrarSesion() {
+  sessionStorage.clear();
+  location.href = "/";
+}
+
+// Evento para abrir modal de login desde mobile
+btnIniciarMobile.addEventListener("click", () => {
+  document.getElementById("loginDropdown").classList.remove("hidden");
+});
+
+
+
+
+  // Mostrar botón hamburguesa si hay sesión
+  if (userid) {
+    menuToggle.classList.remove("hidden");
+  }
+
+  // Estado botones login/cerrar
+  if (!userid) {
     btnIniciar.classList.remove("hidden");
     btnCerrar.classList.add("hidden");
   } else {
     btnIniciar.classList.add("hidden");
     btnCerrar.classList.remove("hidden");
-    document.getElementById("btnCerrar").addEventListener("click", function () {
+    btnCerrar.addEventListener("click", () => {
       sessionStorage.clear();
       location.href = "/";
     });
   }
 
-  //modal
+  // Funciones menú lateral
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+  });
+
+  closeSidebar.addEventListener("click", cerrarMenu);
+  overlay.addEventListener("click", cerrarMenu);
+
+  function cerrarMenu() {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  }
+
+  document.getElementById("btnCerrarSidebar").addEventListener("click", () => {
+    sessionStorage.clear();
+    location.href = "/";
+  });
+
+  // Modal login original
   document.addEventListener("DOMContentLoaded", function () {
-    const btnIniciar = document.getElementById("btnIniciar");
     const loginDropdown = document.getElementById("loginDropdown");
     const closeLogin = document.getElementById("closeLogin");
     const showForgot = document.getElementById("showForgot");
     const forgotForm = document.getElementById("forgotForm");
     const loginForm = document.getElementById("loginForm");
     const backToLogin = document.getElementById("backToLogin");
-    // Mostrar menú login
+
     btnIniciar.addEventListener("click", function () {
       loginDropdown.classList.remove("hidden");
     });
-    // Cerrar menú login
     closeLogin.addEventListener("click", function () {
       loginDropdown.classList.add("hidden");
-      // Siempre mostrar loginForm y ocultar forgotForm al cerrar
       loginForm.classList.remove("hidden");
       forgotForm.classList.add("hidden");
     });
-    // Mostrar formulario de recuperación
     showForgot.addEventListener("click", function () {
       loginForm.classList.add("hidden");
       forgotForm.classList.remove("hidden");
     });
-    // Volver al login
     backToLogin.addEventListener("click", function () {
       forgotForm.classList.add("hidden");
       loginForm.classList.remove("hidden");
     });
-    // Opcional: cerrar con click fuera del modal
     loginDropdown.addEventListener("click", function (e) {
       if (e.target === loginDropdown) {
         loginDropdown.classList.add("hidden");
@@ -172,58 +189,39 @@ import { Image } from "astro:assets";
     });
   });
 
-  //login
+  // Login BD original
   const formData = document.getElementById("loginForm");
-  let formSubmitted = false; // Bandera para controlar envíos
   const correo = document.getElementById("loginEmail");
   const contrasena = document.getElementById("loginPassword");
-  const forgotEmail = document.getElementById("forgotEmail");
 
   if (formData && !formData.dataset.listenerAdded) {
     formData.addEventListener("submit", (e) => {
       e.preventDefault();
-
       fetch(`${ruta}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          correo: correo.value,
-          contrasena: contrasena.value,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo: correo.value, contrasena: contrasena.value }),
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            sessionStorage.setItem("Id", data.id);
-            sessionStorage.setItem("Role", data.role);
-            sessionStorage.setItem("StatusNegocio", data.negocio_creado);
-
-            console.log(data.negocio_creado);
-            
-
-            if (data.role === "profesional") {
-              if (data.negocio_creado === 1) {
-                location.href = "MenuNegocio";
-              } else {
-                location.href = "RegNegocio";
-              }
-            } else if (data.role === "cliente") {
-              location.href = "PrincipalCliente";
-            }
-          } else {
-            alert(data.message);
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          sessionStorage.setItem("Id", data.id);
+          sessionStorage.setItem("Role", data.role);
+          sessionStorage.setItem("StatusNegocio", data.negocio_creado);
+          if (data.role === "profesional") {
+            if (data.negocio_creado === 1) location.href = "MenuNegocio";
+            else location.href = "RegNegocio";
+          } else if (data.role === "cliente") {
+            location.href = "PrincipalCliente";
           }
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Error al enviar el formulario");
-        })
-        .finally(() => {
-          formSubmitted = false;
-        });
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error al enviar el formulario");
+      });
     });
-    formSubmitted = true;
   }
 </script>
