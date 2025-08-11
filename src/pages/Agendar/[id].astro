@@ -1,15 +1,252 @@
 ---
 export const prerender = false;
 const { id } = Astro.params;
-const servicio = { id, nombre: `Barbero con ID ${id}` };
-import "../styles/global.css"
+
+import "/src/styles/global.css";
+import Nav from "../../components/Nav.astro";
+import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
 ---
 
-<h1>{servicio.nombre}</h1>
+<LayoutAgendar>
+    <Nav />
+    <br />
 
-<h2 id="id"></h2>
+
+    <div class="text-center">
+        <h1 class="text-5xl uppercase font-bold text-[#ff5a5f]">Agendar</h1>
+    </div>
+    <div
+        class="flex items-center justify-center min-h-[60vh] bg-[#ffeceda2] p-4"
+    >
+        <form
+            id="citaForm"
+            class="bg-white shadow-lg rounded-xl p-2 w-full max-w-md space-y-4"
+        >
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                Agendar Cita
+            </h2>
+
+            <div>
+                <label
+                    for="nombre"
+                    class="block text-gray-600 text-sm font-medium"
+                    >Nombre</label
+                >
+                <h1 id="nombre" class="text-lg font-semibold text-gray-800">
+                    —
+                </h1>
+            </div>
+
+            <div>
+                <label
+                    for="apellido"
+                    class="block text-gray-600 text-sm font-medium"
+                    >Apellido</label
+                >
+                <h1 id="apellido" class="text-lg font-semibold text-gray-800">
+                    —
+                </h1>
+            </div>
+
+            <div>
+                <label
+                    for="telefono"
+                    class="block text-gray-600 text-sm font-medium"
+                    >Teléfono</label
+                >
+                <h1 id="telefono" class="text-lg font-semibold text-gray-800">
+                    —
+                </h1>
+            </div>
+
+            <div>
+                <label
+                    for="fecha"
+                    class="block text-gray-600 text-sm font-medium">Fecha</label
+                >
+                <input
+                    type="date"
+                    id="fecha"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+            </div>
+
+            <div>
+                <label
+                    for="hora"
+                    class="block text-gray-600 text-sm font-medium">Hora</label
+                >
+                <input
+                    type="time"
+                    id="hora"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+            </div>
+            <div>
+                <label
+                    for="mensaje"
+                    class="block text-gray-600 text-sm font-medium"
+                    >Mensaje</label
+                >
+                <textarea
+                    id="mensaje"
+                    maxlength="100"
+                    rows="4"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                ></textarea>
+                <div class="text-right text-xs text-gray-500">
+                    <span id="contador-mensaje">100</span> caracteres restantes
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                class="w-full bg-[#ff5a5f] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+            >
+                Enviar
+            </button>
+        </form>
+    </div>
+    <div class="rtcccbw">
+        <h1 id="idservicio" class="hidden" data-id={id}>ID Establecimiento:</h1>
+    <h2 id="id"></h2>    
+    </div>
+
+
+    <!-- GSAP -->
+
+    <script></script>
+</LayoutAgendar>
 
 <script>
+    const id = document.getElementById("idservicio").dataset.id;
+    console.log(id);
+
+    
+    document.getElementById("idservicio").textContent =
+        "ID Establecimiento: " + id;
+
+    // document.getElementById("id").textContent = "ID Usuario: " + userid;
+
+    import { ruta } from "../../components/Welcome.astro";
+    import gsap from "gsap";
     const userid = sessionStorage.getItem("Id");
-    document.getElementById("id").textContent = userid;
+
+
+    fetch(`${ruta}/datosUsuario`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userid }),
+    })
+        .then((res) => {
+            if (!res.ok) throw new Error("Error en la respuesta del servidor");
+            return res.json();
+        })
+
+        .then((data) => {
+            //console.log(data);
+            const usuario = data.data[0];
+            document.getElementById("nombre").innerHTML = usuario.nombre;
+            document.getElementById("apellido").innerHTML = usuario.apellidos;
+            document.getElementById("telefono").innerHTML = usuario.telefono;
+        })
+        .catch((err) => {
+            console.error("Error al obtener datos:", err);
+        });
+
+    // --- CONTADOR DE CARACTERES MENSAJE ---
+    const mensajeInput = document.getElementById("mensaje");
+    const contadorMensaje = document.getElementById("contador-mensaje");
+    mensajeInput.addEventListener("input", function () {
+        const restante = 100 - mensajeInput.value.length;
+        contadorMensaje.textContent = restante;
+    });
+    // --- FIN CONTADOR DE CARACTERES ---
+
+    // --- VALIDACIONES DE FECHA Y HORA ---
+    const fechaInput = document.getElementById("fecha");
+    const horaInput = document.getElementById("hora");
+    const form = document.getElementById("citaForm");
+    const nombre = document.getElementById("nombre");
+    const apellido = document.getElementById("apellido");
+    const telefono = document.getElementById("telefono");
+    const mensaje2 = document.getElementById("mensaje");
+
+    // Bloquear fechas pasadas y el mismo día
+    document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date();
+        today.setDate(today.getDate() + 1); // Solo fechas futuras
+        const minDate = today.toISOString().split("T")[0];
+        fechaInput.setAttribute("min", minDate);
+    });
+
+    // Validar disponibilidad antes de enviar
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const fecha = fechaInput.value;
+        const hora = horaInput.value;
+        const mensaje = mensaje2.value;
+       
+        console.log(mensaje);
+        
+
+        if (!fecha || !hora) {
+            alert("Selecciona una fecha y hora válidas");
+            return;
+        }
+        // Consulta a la API para validar disponibilidad
+        // Reemplaza la URL por tu endpoint real
+        const response = await fetch(`${ruta}/agendarcita`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userid,
+                id,
+                fecha,
+                hora,
+                mensaje,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Respuesta inesperada del servidor:", errorText);
+            alert("Error al validar disponibilidad");
+            return;
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+            alert(data.message);
+            return;
+        }
+        alert("Cita agendada correctamente");
+    });
+
+    //gsap
+
+    // Animación con GSAP
+    gsap.from("#citaForm", {
+        opacity: 0,
+        y: 30,
+        duration: 1,
+        ease: "power2.out",
+    });
+
+    gsap.from("#citaForm > div, #citaForm button", {
+        opacity: 1,
+        x: -10,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power1.out",
+        delay: 0.3,
+    });
+    gsap.from("#citaForm button", {
+        opacity: 1,
+        x: 5,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power1.out",
+        delay: 0.3,
+    });
 </script>
