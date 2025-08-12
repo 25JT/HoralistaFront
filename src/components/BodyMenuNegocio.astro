@@ -1,11 +1,11 @@
 ---
 
 ---
-
 <div class="text-center mb-15">
     <h1 class="uppercase text-5xl m-5">Menu de negocio</h1>
 </div>
 <div class="overflow-x-auto md:overflow-visible">
+    <!-- Tabla para escritorio -->
     <table class="hidden md:table w-full border border-gray-300 text-center">
         <thead class="bg-white">
             <tr class="text-[#ff5a5f] font-semibold">
@@ -17,56 +17,111 @@
             </tr>
         </thead>
         <tbody id="tabla-body">
-            <tr class="fila">
-                <td class="border border-gray-300 px-4 py-2">1:00 PM</td>
-                <td class="border border-gray-300 px-4 py-2">23/07/2025</td>
-                <td class="border border-gray-300 px-4 py-2">MARIA</td>
-                <td class="border border-gray-300 px-4 py-2">UÑAS</td>
-                <td class="border border-gray-300 px-4 py-2 text-green-500">✅</td>
-            </tr>
-            <tr class="fila">
-                <td class="border border-gray-300 px-4 py-2">2:00 PM</td>
-                <td class="border border-gray-300 px-4 py-2">23/07/2025</td>
-                <td class="border border-gray-300 px-4 py-2">LINA</td>
-                <td class="border border-gray-300 px-4 py-2">UÑAS</td>
-                <td class="border border-gray-300 px-4 py-2 text-red-500">❌</td>
-            </tr>
+            <!-- Se llena dinámicamente -->
         </tbody>
     </table>
 
-    <!-- Vista móvil tipo tarjetas -->
-    <div class="md:hidden space-y-4 p-4">
-        <div class="tarjeta bg-white border border-gray-300 rounded-lg p-4 shadow text-center">
-            <p><span class="font-semibold text-[#ff5a5f]">HORA:</span> 1:00 PM</p>
-            <p><span class="font-semibold text-[#ff5a5f]">FECHA:</span> 23/07/2025</p>
-            <p><span class="font-semibold text-[#ff5a5f]">CLIENTE:</span> MARIA</p>
-            <p><span class="font-semibold text-[#ff5a5f]">MENSAJE:</span> UÑAS</p>
-            <p><span class="font-semibold text-[#ff5a5f]">CONFIRMACIÓN:</span> ✅</p>
-        </div>
-        <div class="tarjeta bg-white border border-gray-300 rounded-lg p-4 shadow text-center">
-            <p><span class="font-semibold text-[#ff5a5f]">HORA:</span> 2:00 PM</p>
-            <p><span class="font-semibold text-[#ff5a5f]">FECHA:</span> 23/07/2025</p>
-            <p><span class="font-semibold text-[#ff5a5f]">CLIENTE:</span> LINA</p>
-            <p><span class="font-semibold text-[#ff5a5f]">MENSAJE:</span> UÑAS</p>
-            <p><span class="font-semibold text-[#ff5a5f]">CONFIRMACIÓN:</span> ❌</p>
-        </div>
+    <!-- Vista móvil tipo tarjetas (vacía inicialmente) -->
+    <div class="md:hidden space-y-4 p-4" id="contenedor-tarjetas">
+        <!-- Se llena dinámicamente -->
     </div>
 
-
-       <!-- Ver más -->
-       <div class="text-center py-4">
+    <!-- Ver más -->
+    <!-- <div class="text-center py-4">
         <span class="text-[#ff5a5f] italic cursor-pointer hover:underline">Ver más...</span>
-    </div>
+    </div> -->
+</div>
 
+<script >
+    
+    import { ruta } from "./Welcome.astro";
+    import gsap from "gsap";
+    
+    
+    const userid = sessionStorage.getItem("Id");
+    
+    fetch(`${ruta}/api/Reservas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userid }),
+    })
+    .then(res => res.json())
+    .then(respuesta => {
+        const data = respuesta.data || [];
+        const tablaBody = document.getElementById("tabla-body");
+        const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
 
-<script>
+        tablaBody.innerHTML = "";
+        contenedorTarjetas.innerHTML = "";
 
-import { animar } from "../assets/Animaciones/animBodyMenuNeg.js";
-import { ruta } from "./Welcome.astro";
-animar();
+        if (data.length === 0) {
+            // Mensaje si no hay citas
+            contenedorTarjetas.innerHTML = `<p class="text-center text-gray-500">No hay citas registradas</p>`;
+            tablaBody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500">No hay citas registradas</td></tr>`;
+            return;
+        }
 
+        data.forEach(cita => {
+            const icono = (cita.estado === "pendiente" || cita.estado == 0)
+                ? `<span class="text-red-500">❌</span>`
+                : `<span class="text-green-500">✅</span>`;
 
-//fetch(`${ruta}/api/Reservas`)
+            const fechaFormateada = new Date(cita.fecha).toLocaleDateString("es-ES");
 
-   
+            // Formatear hora a 12h AM/PM y sin segundos
+            let horaFormateada = cita.hora;
+            if (horaFormateada) {
+                // Si viene como "7:00:00" o "14:30:00"
+                const [h, m] = horaFormateada.split(":");
+                let hour = parseInt(h, 10);
+                const minutes = m;
+                const ampm = hour >= 12 ? "PM" : "AM";
+                hour = hour % 12;
+                if (hour === 0) hour = 12;
+                horaFormateada = `${hour}:${minutes} ${ampm}`;
+            }
+
+            // Fila en tabla escritorio
+            tablaBody.innerHTML += `
+                <tr class="fila">
+                    <td class="border border-gray-300 px-4 py-2">${horaFormateada}</td>
+                    <td class="border border-gray-300 px-4 py-2">${fechaFormateada}</td>
+                    <td class="border border-gray-300 px-4 py-2">${cita.nombre}</td>
+                    <td class="border border-gray-300 px-4 py-2">${cita.notas}</td>
+                    <td class="border border-gray-300 px-4 py-2">${icono}</td>
+                </tr>
+            `;
+
+            // Tarjeta en vista móvil
+            contenedorTarjetas.innerHTML += `
+                <div class="tarjeta bg-white border border-gray-300 rounded-lg p-4 shadow text-center">
+                    <p><span class="font-semibold text-[#ff5a5f]">HORA:</span> ${cita.hora}</p>
+                    <p><span class="font-semibold text-[#ff5a5f]">FECHA:</span> ${fechaFormateada}</p>
+                    <p><span class="font-semibold text-[#ff5a5f]">CLIENTE:</span> ${cita.nombre}</p>
+                    <p><span class="font-semibold text-[#ff5a5f]">MENSAJE:</span> ${cita.notas}</p>
+                    <p><span class="font-semibold text-[#ff5a5f]">CONFIRMACIÓN:</span> ${icono}</p>
+                </div>
+            `;
+        });
+
+        // Animación GSAP para filas de tabla
+        gsap.from(".fila", {
+            opacity: 0,
+            y: 30,
+            duration: 0.7,
+            stagger: 0.12,
+            ease: "power2.out"
+        });
+        // Animación GSAP para tarjetas móviles
+        gsap.from(".tarjeta", {
+            opacity: 0,
+            y: 30,
+            duration: 0.7,
+            stagger: 0.12,
+            ease: "power2.out"
+        });
+    })
+    .catch(error => {
+        console.error(error);
+    });
 </script>
