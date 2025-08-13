@@ -39,6 +39,8 @@ try {
 		</p>
 	</div>
 
+
+
 	<!-- Imagen -->
 	<div>
 		<Image
@@ -324,6 +326,8 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 			const submitButton = e.target.querySelector('[type="submit"]');
 			submitButton.disabled = true;
 
+			
+			
 			fetch(`${ruta}/registro`, {
 				method: "POST",
 				headers: {
@@ -336,11 +340,13 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 				.then((res) => res.json())
 				.then((data) => {
 					if (data.success) {
-						if (data.role === "cliente") {
-							location.href = "PrincipalCliente";
-						} else {
-							location.href = "RegNegocio";
-						}
+						alert("Registrado exitosamente")
+					//	console.log(data);
+						const id = data.id;
+						const correo = data.email;						
+					//	console.log(correo);
+						
+						TokenRegistro(correo , id );
 					} else {
 						alert(data.message);
 					}
@@ -374,4 +380,32 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 
 
 	animar();
+
+
+
+	//ENVIO DE TOKENS
+
+
+	function TokenRegistro(correo, id) {
+		console.log(id);
+		fetch(`${ruta}/TokenRegistro`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ correo, id }),
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.success) {
+					alert("Correo enviado correctamente");
+				} else {
+					alert(data.message);
+				}
+			})
+			.catch((err) => {
+				console.error(err);
+				alert("Error al enviar el formulario");
+			});
+	}	
 </script>
