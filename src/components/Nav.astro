@@ -224,4 +224,32 @@ btnIniciarMobile.addEventListener("click", () => {
       });
     });
   }
+
+  //restablecer contraseña
+  const forgotForm = document.getElementById("forgotForm");
+  const correo2 = document.getElementById("forgotEmail");
+
+  if (forgotForm && !forgotForm.dataset.listenerAdded) {
+    forgotForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      fetch(`${ruta}/restablecer-contrasena`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo: correo2.value }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+        } else {
+      alert(data.message);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error al enviar el formulario");
+  });
+  });
+}
+
 </script>
