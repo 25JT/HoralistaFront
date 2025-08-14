@@ -340,13 +340,17 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 				.then((res) => res.json())
 				.then((data) => {
 					if (data.success) {
+						const id = data.id;
+						const correo = data.email;	
 						alert("Registrado exitosamente")
 					//	console.log(data);
-						const id = data.id;
-						const correo = data.email;						
+											
 					//	console.log(correo);
 						
 						TokenRegistro(correo , id );
+				
+
+
 					} else {
 						alert(data.message);
 					}
@@ -399,8 +403,10 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 			.then((data) => {
 				if (data.success) {
 					alert("Correo enviado correctamente");
+					location.href = "/";
 				} else {
 					alert(data.message);
+					location.href = "/";
 				}
 			})
 			.catch((err) => {
