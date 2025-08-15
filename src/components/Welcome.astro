@@ -312,6 +312,7 @@ try {
 <script>
 import { ruta } from "./Welcome.astro";
 import { animar } from "../assets/Animaciones/animawelcome.js";
+import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from "../assets/Alertas/Alertas.js";
 	const formData = document.getElementById("registro");
 	let formSubmitted = false; // Bandera para controlar envíos
 
@@ -342,7 +343,7 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 					if (data.success) {
 						const id = data.id;
 						const correo = data.email;	
-						alert("Registrado exitosamente")
+						
 					//	console.log(data);
 											
 					//	console.log(correo);
@@ -352,12 +353,12 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 
 
 					} else {
-						alert(data.message);
+								alertaFallo(data.message);
 					}
 				})
 				.catch((err) => {
 					console.error(err);
-					alert("Error al enviar el formulario");
+					alertaFallo("Error al enviar el formulario");
 				})
 				.finally(() => {
 					formSubmitted = false;
@@ -391,7 +392,7 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 
 
 	function TokenRegistro(correo, id) {
-		console.log(id);
+	// 0	console.log(id);
 		fetch(`${ruta}/TokenRegistro`, {
 			method: "POST",
 			headers: {
@@ -402,16 +403,16 @@ import { animar } from "../assets/Animaciones/animawelcome.js";
 			.then((res) => res.json())
 			.then((data) => {
 				if (data.success) {
-					alert("Correo enviado correctamente");
-					location.href = "/";
+					alertaCheck2("Correo enviado correctamente");
+					
 				} else {
-					alert(data.message);
-					location.href = "/";
+					alertaCheck2("Registro correcto " + data.message);
+				
 				}
 			})
 			.catch((err) => {
 				console.error(err);
-				alert("Error al enviar el formulario");
+				alertaFallo("Error al enviar el formulario");
 			});
 	}	
 </script>

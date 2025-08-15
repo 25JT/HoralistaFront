@@ -27,6 +27,7 @@
   </div>
 
   <script>
+    import {alertaCheck, alertaFallo, alertaMal} from "../assets/Alertas/Alertas.js";
     import gsap from "gsap";
     import { ruta } from "./Welcome.astro";
 
@@ -73,7 +74,7 @@ console.log(token);
         }`;
         // Redirigir al inicio
         setTimeout(() => {
-          alert(data.message);
+          alertaCheck(data.message);
           location.href = "/";
         }, 1500);
 
@@ -85,6 +86,7 @@ console.log(token);
       } catch (error) {
         msg.textContent = "Error de conexión con el servidor";
         msg.className = "mt-4 text-center font-semibold text-red-500";
+        alertaFallo("Error de conexión con el servidor");
       }
     });
   </script>

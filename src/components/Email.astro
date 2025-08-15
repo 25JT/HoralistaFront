@@ -6,6 +6,7 @@ let error = false;
 <script>
     import { ruta } from "./Welcome.astro";
     import gsap from "gsap";
+
     
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("id_token");
@@ -30,18 +31,29 @@ let error = false;
 
     window.addEventListener("DOMContentLoaded", () => {
         if (!token) {
-            mostrarMensaje("Token no encontrado en el enlace.", false);
+            mostrarMensaje("Token no encontrado en el enlace.", false); 
         } else {
             fetch(`${ruta}/verificar-email?id_token=${token}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    mostrarMensaje(data.message, !!data.success);
+                    if (data.success) {
+                        mostrarMensaje(data.message, true);
+                    } else {
+                        mostrarMensaje(data.message, false);
+                    }
                 })
                 .catch(() => {
                     mostrarMensaje("Error al conectar con el servidor.", false);
                 });
         }
     });
+
+    const volver = document.getElementById("volver");
+    if (volver) {
+        volver.addEventListener("click", () => {
+            window.location.href = "/";
+        });
+    }
 
 </script>
 

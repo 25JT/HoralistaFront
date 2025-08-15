@@ -11,7 +11,6 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
     <Nav />
     <br />
 
-
     <div class="text-center">
         <h1 class="text-5xl uppercase font-bold text-[#ff5a5f]">Agendar</h1>
     </div>
@@ -70,8 +69,12 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
             </div>
+            <div id="horas" class="grid grid-cols-4 gap-4"></div>
 
-            <div>
+            <!-- input hidden para enviar la hora seleccionada -->
+            <input type="hidden" id="hora" name="hora" />
+
+            <!-- <div>
                 <label
                     for="hora"
                     class="block text-gray-600 text-sm font-medium">Hora</label
@@ -81,7 +84,7 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
                     id="hora"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
-            </div>
+            </div> -->
             <div>
                 <label
                     for="mensaje"
@@ -107,11 +110,14 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
             </button>
         </form>
     </div>
+    <div class="flex justify-center">
+        <button class="px-4 py-2 uppercase" id="volver">Volver</button>
+    </div>
+    <!-- ID -->
     <div class="rtcccbw">
         <h1 id="idservicio" class="hidden" data-id={id}>ID Establecimiento:</h1>
-    <h2 id="id"></h2>    
+        <h2 id="id"></h2>
     </div>
-
 
     <!-- GSAP -->
 
@@ -120,9 +126,8 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
 
 <script>
     const id = document.getElementById("idservicio").dataset.id;
-    console.log(id);
+    //  console.log(id);
 
-    
     document.getElementById("idservicio").textContent =
         "ID Establecimiento: " + id;
 
@@ -130,8 +135,101 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
 
     import { ruta } from "../../components/Welcome.astro";
     import gsap from "gsap";
+    import {
+        alertaCheck,
+        alertaCheck2,
+        alertaCheck4,
+        alertaFallo,
+        alertaMal,
+    } from "../../assets/Alertas/Alertas.js";
     const userid = sessionStorage.getItem("Id");
 
+    async function cargarHorasDisponibles() {
+    const idServicio = id;
+    const fecha = document.getElementById("fecha").value;
+    
+    if (!idServicio || !fecha) {
+        alert("Por favor seleccione un servicio y una fecha");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${ruta}/validarHoras`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                id: idServicio,
+                fecha: fecha 
+            }),
+        });
+
+        if (!response.ok) throw new Error("Error en la respuesta del servidor");
+
+        const data = await response.json();
+        
+        if (data.success) {
+            mostrarHorasDisponibles(data);
+        } else {
+            throw new Error(data.message || "Error al obtener horas disponibles");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        mostrarError("No se pudieron cargar las horas disponibles. Intente nuevamente.");
+    }
+}
+
+function mostrarHorasDisponibles(data) {
+    const contenedor = document.getElementById("horas");
+    contenedor.innerHTML = "";
+
+    if (!data.disponibles || data.disponibles.length === 0) {
+        contenedor.innerHTML = `
+            <div class="text-center py-4 text-gray-500">
+                No hay horas disponibles para esta fecha.
+                <br>Por favor seleccione otra fecha.
+            </div>
+        `;
+        return;
+    }
+
+    // Crear botones para cada hora disponible
+    data.disponibles.forEach(hora24 => {
+        const [hora] = hora24.split(':');
+        const horaNum = parseInt(hora);
+        const ampm = horaNum >= 12 ? 'pm' : 'am';
+        const hora12 = horaNum % 12 === 0 ? 12 : horaNum % 12;
+        const label = `${hora12}:00 ${ampm}`;
+
+        const boton = document.createElement('button');
+        boton.className = 'hora bg-blue-100 hover:bg-blue-300 text-blue-800 py-2 px-4 rounded-md transition m-1';
+        boton.dataset.id = hora24;
+        boton.type = 'button';
+        boton.textContent = label;
+        
+        boton.addEventListener('click', () => {
+            document.querySelectorAll('.hora').forEach(b => {
+                b.classList.remove('bg-blue-500', 'text-white');
+                b.classList.add('bg-blue-100', 'text-blue-800');
+            });
+            boton.classList.add('bg-blue-500', 'text-white');
+            document.getElementById('hora').value = hora24;
+        });
+
+        contenedor.appendChild(boton);
+    });
+}
+
+function mostrarError(mensaje) {
+    const contenedor = document.getElementById("horas");
+    contenedor.innerHTML = `
+        <div class="text-center py-4 text-red-500">
+            ${mensaje}
+        </div>
+    `;
+}
+
+// Ejemplo de cómo llamar la función cuando cambia la fecha
+document.getElementById("fecha").addEventListener("change", cargarHorasDisponibles);
 
     fetch(`${ruta}/datosUsuario`, {
         method: "POST",
@@ -186,12 +284,11 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
         const fecha = fechaInput.value;
         const hora = horaInput.value;
         const mensaje = mensaje2.value;
-       
-        console.log(mensaje);
-        
+
+        // console.log(mensaje);
 
         if (!fecha || !hora) {
-            alert("Selecciona una fecha y hora válidas");
+            alertaMal("Selecciona una fecha y hora válidas");
             return;
         }
         // Consulta a la API para validar disponibilidad
@@ -210,17 +307,22 @@ import LayoutAgendar from "../../layouts/LayoutAgendar.astro";
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Respuesta inesperada del servidor:", errorText);
-            alert("Error al validar disponibilidad");
+            // console.error("Respuesta inesperada del servidor:", errorText);
+            alertaFallo("Error al validar disponibilidad");
             return;
         }
 
         const data = await response.json();
         if (!data.success) {
-            alert(data.message);
+            alertaMal(data.message);
             return;
         }
-        alert("Cita agendada correctamente");
+        alertaCheck4("Cita agendada correctamente");
+    });
+
+    //volver
+    document.getElementById("volver").addEventListener("click", function () {
+        history.back();
     });
 
     //gsap

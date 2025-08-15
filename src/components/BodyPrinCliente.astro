@@ -12,8 +12,8 @@
   <script>
     import { ruta } from "./Welcome.astro";
     //gsap aniamciones por el moemtno
-    import gsap from "gsap";
-    import { ScrollTrigger } from "gsap/ScrollTrigger";
+    import {alertaCheck, alertaFallo, alertaMal} from "../assets/Alertas/Alertas.js";
+
 
     const userid = sessionStorage.getItem("Id");
     const role = sessionStorage.getItem("Role");
@@ -82,6 +82,7 @@
       })
       .catch((error) => {
         console.error("Error al obtener datos:", error);
+        alertaFallo("Error al obtener datos");
       });
 
       // document.addEventListener("DOMContentLoaded", () => {

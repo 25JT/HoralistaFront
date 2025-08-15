@@ -70,18 +70,22 @@ import Business from "../assets/img/Business.svg";
 
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <label
-                            for="hora_inicio"
-                            class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]"
-                            >Hora Inicio</label
-                        >
-                        <input
-                            id="hora_inicio"
-                            type="time"
+                        <label for="hora_inicio" class="block text-sm font-medium text-gray-600 uppercase font-[Poppins]">
+                            Hora Inicio
+                        </label>
+                        <input 
+                            type="time" 
+                            id="hora_inicio" 
                             name="hora_inicio"
+                            min="06:00" 
+                            max="22:00" 
+                            step="3600"
+                            pattern="[0-9]{2}:00"
+                            title="Por favor, seleccione una hora en punto (ej. 06:00, 07:00)"
                             class="mt-1 w-full border rounded-md p-2"
                             required
-                        />
+                        >
+                        <p id="hora-error" class="mt-1 text-sm text-red-600 hidden">La hora debe ser en punto (minutos :00)</p>
                     </div>
                     <div class="w-1/2">
                         <label
@@ -93,9 +97,15 @@ import Business from "../assets/img/Business.svg";
                             id="hora_fin"
                             type="time"
                             name="hora_fin"
+                            min="06:00" 
+                            max="22:00"
+                            step="3600"
+                            pattern="[0-9]{2}:00"
+                            title="Por favor, seleccione una hora en punto (ej. 08:00, 22:00)"
                             class="mt-1 w-full border rounded-md p-2"
                             required
                         />
+                        <p id="hora-fin-error" class="mt-1 text-sm text-red-600 hidden">La hora final debe ser en punto (minutos :00)</p>
                     </div>
                 </div>
 
@@ -252,11 +262,60 @@ import Business from "../assets/img/Business.svg";
 </div>
 
 <script>
-    import { animar } from "../assets/Animaciones/animaRegSecion.js";
+    import {alertaCheck, alertaCheck3, alertaFallo, alertaMal} from "../assets/Alertas/Alertas.js";
+import { animar } from "../assets/Animaciones/animaRegSecion.js";
     import { ruta } from "./Welcome.astro";
     animar();
     //formato cop 
     const precioInput = document.getElementById('precio');
+
+//validar hora-Inicio en 6.00 en rango 
+document.getElementById('hora_inicio').addEventListener('change', function() {
+        const horaInput = this.value;
+        const minutos = horaInput.split(':')[1];
+        const errorElement = document.getElementById('hora-error');
+        
+        if(minutos !== '00') {
+            errorElement.classList.remove('hidden');
+            this.setCustomValidity('La hora debe ser en punto (minutos :00)');
+        } else {
+            errorElement.classList.add('hidden');
+            this.setCustomValidity('');
+        }
+    });
+
+    //validar hora-cerrar en 6.00 en rango 
+
+    document.getElementById('hora_fin').addEventListener('change', function() {
+        validarHoraEnPunto(this, 'hora-fin-error');
+        
+        // Opcional: Validar que hora fin sea mayor que hora inicio
+        const horaInicio = document.getElementById('hora_inicio').value;
+        const horaFin = this.value;
+        
+        if(horaInicio && horaFin && horaFin <= horaInicio) {
+            alert('La hora final debe ser posterior a la hora de inicio');
+            this.value = '';
+        }
+    });
+
+    // Función reutilizable para validar horas en punto
+    function validarHoraEnPunto(inputElement, errorElementId) {
+        const horaInput = inputElement.value;
+        const minutos = horaInput.split(':')[1];
+        const errorElement = document.getElementById(errorElementId);
+        
+        if(minutos !== '00') {
+            errorElement.classList.remove('hidden');
+            inputElement.setCustomValidity('La hora debe ser en punto (minutos :00)');
+        } else {
+            errorElement.classList.add('hidden');
+            inputElement.setCustomValidity('');
+        }
+    }
+
+
+
 
 precioInput.addEventListener('input', (e) => {
   // Remueve todo lo que no sea dígito
@@ -313,9 +372,10 @@ precioInput.addEventListener('input', (e) => {
 
             };
 
-            
+            //console.log(data);
 
             fetch(`${ruta}/registroNegocio`, {
+                
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -325,15 +385,16 @@ precioInput.addEventListener('input', (e) => {
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.success) {
-                        alert("Registro exitoso");
-                        location.href = "/MenuNegocio";
+                        
+                        alertaCheck3("Registro exitoso");
+                        
                     } else {
-                        alert(data.message);
+                        alertaFallo(data.message);
                     }
                 })
                 .catch((err) => {
-                    console.error(err);
-                    alert("Error al enviar el formulario");
+                  //  console.error(err);
+                    alertaFallo("Error al enviar el formulario");
                 });
         });
 </script>
