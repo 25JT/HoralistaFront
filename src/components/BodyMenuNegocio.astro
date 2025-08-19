@@ -62,9 +62,18 @@
         }
 
         data.forEach(cita => {
-            const icono = (cita.estado === "pendiente" || cita.estado == 0)
-                ? `<span class="text-red-500">❌</span>`
-                : `<span class="text-green-500">✅</span>`;
+            let icono;
+
+if (cita.estado === "pendiente" || cita.estado === 0) {
+    icono = `<span class="text-yellow-500">PENDIENTE ⏳</span>`; // Amarillo para pendiente
+} else if (cita.estado === "confirmada") {
+    icono = `<span class="text-green-500">CONFIRMADA ✅</span>`; // Verde para confirmado
+} else if (cita.estado === "cancelada") {
+    icono = `<span class="text-red-500">CANCELADA ❌</span>`; // Rojo para cancelada
+} else {
+    icono = `<span class="text-gray-400">DESCONOCIDO ❔</span>`; // Gris para estados desconocidos
+}
+
 
             const fechaFormateada = new Date(cita.fecha).toLocaleDateString("es-ES");
 
