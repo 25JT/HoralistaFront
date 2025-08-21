@@ -1,25 +1,35 @@
 ---
 
 ---
+<div class="text-center my-8">
+  <h1 class="text-5xl font-bold text-gray-800">CITAS AGENDADAS</h1>
+</div>
+
+<!--- CITAS AGENDADAS -->
+<div id="contenedor-citas" class="flex flex-wrap justify-center gap-6 px-4"></div>
+
 
 <!-- Título -->
 <div class="text-center my-8">
   <h1 class="text-5xl font-bold text-gray-800">SERVICIOS DISPONIBLES</h1>
 </div>
 
+
 <!-- Contenedor de tarjetas -->
-<div id="contenedor-servicios" class="flex flex-wrap justify-center gap-6 px-4">
+<div id="contenedor-servicios" class="flex flex-wrap justify-center gap-6 px-4"></div>
   <script>
     import { ruta } from "./Welcome.astro";
     //gsap aniamciones por el moemtno
     import {alertaCheck, alertaFallo, alertaMal} from "../assets/Alertas/Alertas.js";
 
 
+    
+
     const userid = sessionStorage.getItem("Id");
     const role = sessionStorage.getItem("Role");
-
+ //   console.log(userid);
     // mostrar citas
-    fetch(`${ruta}/mostrarCitas`)
+    fetch(`${ruta}/serviciosDisponibles`)
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
@@ -85,14 +95,93 @@
         alertaFallo("Error al obtener datos");
       });
 
-      // document.addEventListener("DOMContentLoaded", () => {
-      //   gsap.from(".animate", {
-      //     y: -50,
-      //     opacity: 0,
-      //     stagger: 0.2,
-      //     duration: 0.8,
-      //     ease: "power2.out",
-      //   });
-      // });
+//citas agendadas
+fetch(`${ruta}/mostrarCitas`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ userid }),
+})
+  .then((response) => response.json())
+  .then((data) => {
+   // console.log(data);
+
+    if (!data.success) {
+      console.error("Error en respuesta:", data.message);
+      return;
+    }
+
+    const contenedor = document.getElementById("contenedor-citas");
+    contenedor.innerHTML = ""; // limpiar antes de pintar
+
+    data.data.forEach((agenda, index2) => {
+      // 🔹 Formatear fecha
+      const fechaObj = new Date(agenda.fecha);
+      const fechaFormateada = fechaObj.toLocaleDateString("es-CO", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      // 🔹 Formatear hora
+      const horaFormateada = agenda.hora
+        ? agenda.hora.substring(0, 5) // "15:00:00" -> "15:00"
+        : "N/A";
+
+      const tarjeta = document.createElement("div");
+      tarjeta.className =
+        "card-cita bg-white shadow-xl rounded-2xl p-6 text-center w-full md:w-[30%] animate";
+      tarjeta.dataset.index = index2;
+
+      tarjeta.innerHTML = `
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">📅 ${fechaFormateada}</h2>
+        <p class="text-gray-600 mb-2">⏰ Hora: <span class="text-[#ff5a5f]">${horaFormateada}</span></p>
+        <p class="font-bold mb-4 ${
+          agenda.estado === "confirmada"
+            ? "text-green-600"
+            : agenda.estado === "cancelada"
+            ? "text-red-600"
+            : "text-yellow-600"
+        }">Estado: ${agenda.estado}</p>
+        <button id="btn-cancelar-${agenda.id}" 
+          class="bg-black hover:bg-[#e04e52] text-white font-semibold py-2 px-4 rounded-xl w-full transition-all">
+          Cancelar
+        </button>
+      `;
+
+      contenedor.appendChild(tarjeta);
+
+      // Acción del botón "Cancelar"
+      document
+        .getElementById(`btn-cancelar-${agenda.id}`)
+        .addEventListener("click", () => {
+        fetch(`${ruta}/cancelar-cita`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: agenda.id }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            if (!data.success) {
+              console.error("Error en respuesta:", data.message);
+              return;
+            }
+            alertaCheck("Cita cancelada exitosamente");
+          })
+          .catch((error) => {
+            console.error("Error al obtener datos:", error);
+            alertaFallo("Error al obtener datos");
+          });
+        });
+    });
+  })
+  .catch((error) => {
+    console.error("Error al obtener datos:", error);
+    alertaFallo("Error al obtener datos");
+  });
+
+
+
   </script>
-</div>
+
