@@ -45,15 +45,16 @@ import { Image } from "astro:assets";
       <button id="closeSidebar" class="text-2xl">&times;</button>
     </div>
     <div class="p-4 space-y-4">
-      <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded"
+      <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded" id="Negocio"
         >Mi Negocio</button
       >
-      <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded"
-        >Opción 2</button
+      
+      <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded" id="Citas"
+        > Mis Citas</button
       >
-      <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded"
+      <!-- <button class="w-full text-left px-4 py-2 hover:bg-pink-50 rounded"
         >Opción 3</button
-      >
+      > -->
       <hr />
       <!-- Cerrar sesión -->
       <button
@@ -163,6 +164,8 @@ import { Image } from "astro:assets";
 
     const userid = sessionStorage.getItem("Id");
     const role = sessionStorage.getItem("Role");
+
+    
 
     const menuToggle = document.getElementById("menuToggle");
     const sidebar = document.getElementById("sidebar");
@@ -345,5 +348,25 @@ import { Image } from "astro:assets";
           });
       });
     }
+
+
+    //funciones de la barra lateral
+    if (role === "cliente") {
+      document.getElementById("Negocio").classList.add("hidden");
+      document.getElementById("Citas").classList.remove("hidden");
+    }else{
+      document.getElementById("Negocio").classList.remove("hidden");
+      document.getElementById("Citas").classList.add("hidden");
+    }
+    
+    document.getElementById("Negocio").addEventListener("click", () => {
+      location.href = "MenuNegocio";
+    });
+
+    document.getElementById("Citas").addEventListener("click", () => {
+      location.href = "PrincipalCliente";
+    });
+
+
   </script>
 </nav>

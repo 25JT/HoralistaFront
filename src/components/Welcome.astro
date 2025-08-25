@@ -5,6 +5,8 @@ import ImgCalendar from "../assets/img/Calendar-pana.svg";
 import ImgMC from "../assets/img/Makeup artist-amico.svg";
 import ImgMC2 from "../assets/img/Online calendar-rafiki.svg";
 import Foto from "../assets/img/fotos/foto1.jpg";
+import Foto2 from "../assets/img/fotos/foto2.jpg";
+import Foto3 from "../assets/img/fotos/foto3.jpg";
 
 export const ruta = "http://localhost:3000";
 
@@ -38,8 +40,6 @@ try {
 			esperas.
 		</p>
 	</div>
-
-
 
 	<!-- Imagen -->
 	<div>
@@ -258,7 +258,9 @@ try {
 			</p>
 			<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
 			<p class="testimonial-text text-center italic">
-				"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"
+				"Desde que uso este sistema, la organización de mis clientes
+				mejoró muchísimo. Ahora puedo dedicar más tiempo a crecer mi
+				negocio y menos a problemas administrativos."
 			</p>
 		</div>
 
@@ -268,19 +270,21 @@ try {
 		>
 			<div class="testimonial-image flex justify-center">
 				<Image
-					src={Foto}
+					src={Foto2}
 					alt="Testimonio2"
-					class="w-[200px] h-[250px] rounded-lg shadow-lg"
+					class="w-[250px] h-[250px] rounded-lg shadow-lg"
 				/>
 			</div>
 			<p
 				class="testimonial-name mt-4 text-base md:text-3xl flex justify-center font-semibold"
 			>
-				JAMES BARELA
+				Andrés Castillo
 			</p>
 			<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
 			<p class="testimonial-text text-center italic">
-				"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"
+				"Me encanta lo intuitivo que es el sistema. Puedo gestionar todo
+				desde mi celular y mis clientes reciben un servicio más rápido y
+				profesional"
 			</p>
 		</div>
 
@@ -290,19 +294,21 @@ try {
 		>
 			<div class="testimonial-image flex justify-center">
 				<Image
-					src={Foto}
+					src={Foto3}
 					alt="Testimonio3"
-					class="w-[200px] h-[250px] rounded-lg shadow-lg"
+					class="w-[250px] h-[250px] rounded-lg shadow-lg"
 				/>
 			</div>
 			<p
 				class="testimonial-name mt-4 text-base md:text-3xl flex justify-center font-semibold"
 			>
-				JAMES BARELA
+				Valeria Torres
 			</p>
 			<p class="testimonial-rating">⭐⭐⭐⭐⭐</p>
 			<p class="testimonial-text text-center italic">
-				"EL MEJOR SISTEMA PARA GESTIONAR MIS CLIENTES"
+				"Este software me ha facilitado la vida. Antes llevaba todo en
+				libretas y hojas sueltas, ahora tengo el control de mis citas y
+				clientes en un solo lugar"
 			</p>
 		</div>
 	</div>
@@ -310,9 +316,15 @@ try {
 
 <!-- JS -->
 <script>
-import { ruta } from "./Welcome.astro";
-import { animar } from "../assets/Animaciones/animawelcome.js";
-import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from "../assets/Alertas/Alertas.js";
+	import { ruta } from "./Welcome.astro";
+	import { animar } from "../assets/Animaciones/animawelcome.js";
+	import {
+		alertaCheck,
+		alertaCheck2,
+		alertaFallo,
+		alertaFallo2,
+		alertaMal,
+	} from "../assets/Alertas/Alertas.js";
 	const formData = document.getElementById("registro");
 	let formSubmitted = false; // Bandera para controlar envíos
 
@@ -327,8 +339,6 @@ import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from ".
 			const submitButton = e.target.querySelector('[type="submit"]');
 			submitButton.disabled = true;
 
-			
-			
 			fetch(`${ruta}/registro`, {
 				method: "POST",
 				headers: {
@@ -342,18 +352,11 @@ import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from ".
 				.then((data) => {
 					if (data.success) {
 						const id = data.id;
-						const correo = data.email;	
-						
-					//	console.log(data);
-											
-					//	console.log(correo);
-						
-						TokenRegistro(correo , id );
-				
+						const correo = data.email;
 
-
+						TokenRegistro(correo, id);
 					} else {
-								alertaFallo(data.message);
+						alertaFallo(data.message);
 					}
 				})
 				.catch((err) => {
@@ -383,16 +386,12 @@ import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from ".
 		}
 	});
 
-
 	animar();
-
-
 
 	//ENVIO DE TOKENS
 
-
 	function TokenRegistro(correo, id) {
-	// 0	console.log(id);
+		// 0	console.log(id);
 		fetch(`${ruta}/TokenRegistro`, {
 			method: "POST",
 			headers: {
@@ -404,15 +403,13 @@ import {alertaCheck, alertaCheck2, alertaFallo, alertaFallo2, alertaMal} from ".
 			.then((data) => {
 				if (data.success) {
 					alertaCheck2("Correo enviado correctamente");
-					
 				} else {
 					alertaCheck2("Registro correcto " + data.message);
-				
 				}
 			})
 			.catch((err) => {
 				console.error(err);
 				alertaFallo("Error al enviar el formulario");
 			});
-	}	
+	}
 </script>
