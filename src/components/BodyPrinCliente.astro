@@ -104,7 +104,6 @@ fetch(`${ruta}/mostrarCitas`, {
 })
   .then((response) => response.json())
   .then((data) => {
-   //console.log(data);
 
     if (!data.success) {
       console.error("Error en respuesta:", data.message);
@@ -119,7 +118,6 @@ fetch(`${ruta}/mostrarCitas`, {
     const contenedor = document.getElementById("contenedor-citas");
     contenedor.innerHTML = ""; // limpiar antes de pintar
 
-//console.log(data.data);
 
 
     data.data.forEach((agenda, index2) => {
@@ -172,7 +170,7 @@ fetch(`${ruta}/mostrarCitas`, {
         })
           .then((response) => response.json())
           .then((data) => {
-            console.log(data);
+           // console.log(data);
             if (!data.success) {
               console.error("Error en respuesta:", data.message);
               return;

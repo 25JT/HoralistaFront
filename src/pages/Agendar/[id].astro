@@ -323,7 +323,7 @@ document.getElementById("fecha").addEventListener("change", cargarHorasDisponibl
 
         if (!response.ok) {
             const errorText = await response.text();
-            // console.error("Respuesta inesperada del servidor:", errorText);
+             console.error("Respuesta inesperada del servidor:", errorText);
             alertaFallo("Error al validar disponibilidad");
             return;
         }

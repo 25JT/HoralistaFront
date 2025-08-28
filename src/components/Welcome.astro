@@ -8,8 +8,8 @@ import Foto from "../assets/img/fotos/foto1.jpg";
 import Foto2 from "../assets/img/fotos/foto2.jpg";
 import Foto3 from "../assets/img/fotos/foto3.jpg";
 
-export const ruta = "http://localhost:3000";
-
+export const ruta = "https://servidorhoralista-production.up.railway.app";
+//
 let data = null;
 let error = null;
 
@@ -319,11 +319,9 @@ try {
 	import { ruta } from "./Welcome.astro";
 	import { animar } from "../assets/Animaciones/animawelcome.js";
 	import {
-		alertaCheck,
 		alertaCheck2,
 		alertaFallo,
-		alertaFallo2,
-		alertaMal,
+
 	} from "../assets/Alertas/Alertas.js";
 	const formData = document.getElementById("registro");
 	let formSubmitted = false; // Bandera para controlar envíos
