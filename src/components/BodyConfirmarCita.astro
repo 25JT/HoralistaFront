@@ -28,6 +28,8 @@
 </div>
 
 <script>
+    import { ruta } from "./Welcome.astro";
+
     async function actualizarCita(id, accion) {
         try {
             // Deshabilitar botones
@@ -44,8 +46,8 @@
 
             const endpoint =
                 accion === "confirmar"
-                    ? "http://localhost:3000/confirmar-cita"
-                    : "http://localhost:3000/cancelar-cita";
+                    ? `${ruta}/confirmar-cita`
+                    : `${ruta}/cancelar-cita`;
 
             const res = await fetch(endpoint, {
                 method: "POST",
