@@ -21,7 +21,7 @@ la aplicacion tabaja con las siguientes caracteristicas.
  - Link del repositorio del servidor AQUI  = https://github.com/25JT/ServidorHoralista
 * y Mysql para guardar los datos  = esta base de datos esta guardada en una carpeta en el servidor.
 
-Pagina funcionando aqui =  [ https://frolicking-bienenstitch-17272e.netlify.app/](https://fromprueba-production.up.railway.app/)
+Pagina funcionando aqui = https://fromprueba-production.up.railway.app/
 
 Servidores
 * railway
@@ -54,7 +54,7 @@ this application work with:
  - Link server repository HERE = https://github.com/25JT/ServidorHoralista
 * and Mysql for save data = this database is save in the repository sever 
 
-page working =   https://frolicking-bienenstitch-17272e.netlify.app/
+page working =  https://fromprueba-production.up.railway.app/
 
 Server
 * railway
