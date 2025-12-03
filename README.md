@@ -21,7 +21,7 @@ la aplicacion tabaja con las siguientes caracteristicas.
  - Link del repositorio del servidor AQUI  = https://github.com/25JT/ServidorHoralista
 * y Mysql para guardar los datos  = esta base de datos esta guardada en una carpeta en el servidor.
 
-Pagina funcionando aqui =   https://frolicking-bienenstitch-17272e.netlify.app/
+Pagina funcionando aqui =  [ https://frolicking-bienenstitch-17272e.netlify.app/](https://fromprueba-production.up.railway.app/)
 
 Servidores
 * railway
