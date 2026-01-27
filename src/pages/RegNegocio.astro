@@ -1,16 +1,13 @@
 ---
 import Nav from "../components/Nav.astro";
-import LayoutRegNego from "../layouts/LayoutRegNego.astro";
+import Layout from "../layouts/Layout.astro";
 import BodyRegNegocio from "../components/BodyRegNegocio.astro";
-import '../styles/global.css'
+import "../styles/global.css";
 ---
 
-<LayoutRegNego>
-<Nav/>
-<br>
-<BodyRegNegocio/>
-</LayoutRegNego>
-
-
+<Layout title="Registra Tu Negocio">
+  <Nav />
+  <BodyRegNegocio />
+</Layout>
 
 <script src="../utils/validarInicio.js"></script>

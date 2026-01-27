@@ -1,102 +1,144 @@
 import { ruta } from "../utils/ruta.js";
-	import { animar } from "../assets/Animaciones/animawelcome.js";
-	import {
-		alertaCheck2,
-		alertaFallo,
-	} from "../assets/Alertas/Alertas.js";
-	const formData = document.getElementById("registro");
-	let formSubmitted = false; // Bandera para controlar envíos
+import { animarTitulo, animarParrafo, animarFormulario, animarTitulo2, animarParrafo2, animarControlCitas, animarTitulo3, animarParrafo3, miniTitulo, animarParrafo4, Rounded, prepareAnimations } from "../assets/Animaciones/animawelcome.js";
+import { alertaCheck2, alertaFallo, } from "../assets/Alertas/Alertas.js";
 
-	if (formData && !formData.dataset.listenerAdded) {
-		formData.addEventListener("submit", (e) => {
-			e.preventDefault();
+// ============================================
+// SISTEMA DE CARGA PROGRESIVA Y PRIORIZADA
+// ============================================
+// Sección 0: Carga inmediata (máxima prioridad)
+// Secciones 1+: Carga diferida y escalonada (menor prioridad)
 
-			if (formSubmitted) return; // Evitar múltiples envíos
-			formSubmitted = true;
+function cargarAnimacionesProgresivamente() {
+	// Batched DOM writes para evitar forced reflows
+	prepareAnimations();
 
-			// Deshabilitar el botón para evitar clicks múltiples
-			const submitButton = e.target.querySelector('[type="submit"]');
-			submitButton.disabled = true;
+	// PRIORIDAD ALTA: Cargar sección 0 inmediatamente
+	animarTitulo();
 
-			fetch(`${ruta}/registro`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(
-					Object.fromEntries(new FormData(e.target)),
-				),
-			})
-				.then((res) => res.json())
-				.then((data) => {
-					if (data.success) {
-						const id = data.id;
-						const correo = data.email;
+	animarParrafo();
+	animarFormulario();
 
-						TokenRegistro(correo, id);
-					} else {
-						alertaFallo(data.message);
-					}
-				})
-				.catch((err) => {
-					console.error(err);
-					alertaFallo("Error al enviar el formulario");
-				})
-				.finally(() => {
-					formSubmitted = false;
-					if (submitButton) submitButton.disabled = false;
-				});
-		});
+	// PRIORIDAD BAJA: Cargar otras secciones de forma escalonada
+	// Usamos requestIdleCallback para no bloquear el hilo principal
+	const cargarSeccionesSecundarias = () => {
+		animarTitulo2()
+		animarParrafo2()
+		setTimeout(() => animarControlCitas(), 300)
+		// Aquí puedes agregar animaciones de otras secciones cuando las tengas
+		// Por ejemplo:
+		// - Sección 1: cargar después de 100ms
+		// - Sección 2: cargar después de 200ms
+		// - Sección 3: cargar después de 300ms
+		// etc.
+	};
+	const cargarSeccionesTercarias = () => {
+		animarTitulo3()
+		animarParrafo3()
+		miniTitulo()
+		Rounded()
 
-		// Marcar el formulario como ya procesado
-		formData.dataset.listenerAdded = "true";
 	}
-	//Desplazamiento al formualrio
+	const cargarSeccionesCuarta = () => {
+		animarParrafo4()
+	}
 
-	// Scroll suave al formulario de registro
-	document.addEventListener("DOMContentLoaded", function () {
-		const btnReg = document.getElementById("btnReg");
-		const registro = document.getElementById("registro1");
-		if (btnReg && registro) {
-			btnReg.addEventListener("click", function (e) {
-				e.preventDefault();
-				registro.scrollIntoView({ behavior: "smooth", block: "start" });
-			});
-		}
-	});
+	// Usar requestIdleCallback si está disponible, sino setTimeout
+	if ('requestIdleCallback' in window) {
+		requestIdleCallback(cargarSeccionesSecundarias, { timeout: 2000 });
+		requestIdleCallback(cargarSeccionesTercarias, { timeout: 4000 });
+		requestIdleCallback(cargarSeccionesCuarta, { timeout: 6000 });
+	} else {
+		setTimeout(cargarSeccionesSecundarias, 100);
+		setTimeout(cargarSeccionesTercarias, 200);
+		setTimeout(cargarSeccionesCuarta, 300);
+	}
+}
 
-	animar();
+// Iniciar carga progresiva
+cargarAnimacionesProgresivamente();
 
-	//ENVIO DE TOKENS
+const formData = document.getElementById("registro");
+let formSubmitted = false; // Bandera para controlar envíos
 
-	function TokenRegistro(correo, id) {
-		// 0	console.log(id);
-		fetch(`${ruta}/TokenRegistro`, {
+if (formData && !formData.dataset.listenerAdded) {
+	formData.addEventListener("submit", (e) => {
+		e.preventDefault();
+
+		if (formSubmitted) return; // Evitar múltiples envíos
+		formSubmitted = true;
+
+		// Deshabilitar el botón para evitar clicks múltiples
+		const submitButton = e.target.querySelector('[type="submit"]');
+		submitButton.disabled = true;
+
+		fetch(`${ruta}/registro`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ correo, id }),
+			credentials: 'include',
+			body: JSON.stringify(
+				Object.fromEntries(new FormData(e.target)),
+			),
 		})
 			.then((res) => res.json())
 			.then((data) => {
 				if (data.success) {
-					alertaCheck2("Correo enviado correctamente");
+					const id = data.id;
+					const correo = data.email;
+
+					TokenRegistro(correo, id);
 				} else {
-					alertaCheck2("Registro correcto " + data.message);
+					alertaFallo(data.message);
 				}
 			})
 			.catch((err) => {
 				console.error(err);
 				alertaFallo("Error al enviar el formulario");
+			})
+			.finally(() => {
+				formSubmitted = false;
+				if (submitButton) submitButton.disabled = false;
 			});
-	}
+	});
 
-	let data = null;
+	// Marcar el formulario como ya procesado
+	formData.dataset.listenerAdded = "true";
+}
+
+//ENVIO DE TOKENS
+
+function TokenRegistro(correo, id) {
+	// 0	console.log(id);
+	fetch(`${ruta}/TokenRegistro`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		credentials: 'include',
+		body: JSON.stringify({ correo, id }),
+	})
+		.then((res) => res.json())
+		.then((data) => {
+			if (data.success) {
+				alertaCheck2("Correo enviado correctamente");
+			} else {
+				alertaCheck2("Registro correcto " + data.message);
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+			alertaFallo("Error al enviar el formulario");
+		});
+}
+
+let data = null;
 let error = null;
 
 try {
-	const res = await fetch(`${ruta}/`);
+	const res = await fetch(`${ruta}/`, {
+		credentials: 'include'
+	});
 	if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
 	data = await res.json();
 } catch (err) {
