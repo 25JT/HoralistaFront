@@ -1,13 +1,6 @@
 import { ruta } from "../utils/ruta.js";
-import {
-  alertaCheck2,
-  alertaFallo,
-  alertaMal,
-} from "../assets/Alertas/Alertas.js";
+import { alertaCheck2, alertaFallo, alertaMal, alertaFalloDesaparece } from "../assets/Alertas/Alertas.js";
 
-// ===== SESSION MANAGEMENT =====
-const userid = sessionStorage.getItem("Id");
-const role = sessionStorage.getItem("Role");
 
 // ===== DOM ELEMENTS =====
 const btnCerrar = document.getElementById("btnCerrar");
@@ -30,6 +23,7 @@ export function cerrarSesion() {
     })
     .then((data) => {
       console.log(data);
+      localStorage.clear();
       location.href = "/";
     })
     .catch((error) => {
@@ -38,11 +32,11 @@ export function cerrarSesion() {
 }
 
 
-
 // ===== INITIALIZE UI BASED ON SESSION =====
-function initializeAuthButtons() {
+export function initializeAuthButtons() {
+  const userid = sessionStorage.getItem("Id");
   if (!userid) {
-    // Usuario NO ha iniciado sesión
+    // Usuario NO ha iniciado sesión (en esta pestaña)
     if (btnIniciar) {
       btnIniciar.classList.remove("hidden");
       btnIniciar.classList.add("border-2", "border-[#135bec]", "rounded-2xl");
@@ -65,8 +59,56 @@ function initializeAuthButtons() {
   }
 }
 
-// Inicializar botones de autenticación
+// Función global para verificar estado con el servidor
+async function verificarEstadoGlobal() {
+  try {
+    const res = await fetch(`${ruta}/api/verificar-estado`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.usuario) {
+        // Guardar datos (asegurando que el rol no sea undefined)
+        sessionStorage.setItem("Id", data.usuario.id);
+
+        // Verificación defensiva del rol (puede venir como 'role' o 'Role')
+        const roleValue = data.usuario.rol;
+        if (roleValue) {
+          sessionStorage.setItem("Role", roleValue);
+        }
+
+        // Capturar estado del negocio si existe
+        const statusNegocio = data.usuario.StatusNegocio ?? data.usuario.negocio_creado ?? data.usuario.status_negocio;
+        if (statusNegocio !== undefined) {
+          sessionStorage.setItem("StatusNegocio", statusNegocio);
+        }
+
+        if (data.usuario.nombre) sessionStorage.setItem("userName", data.usuario.nombre);
+        if (data.usuario.correo) sessionStorage.setItem("userEmail", data.usuario.correo);
+
+        // Notificar a todos los componentes
+        window.dispatchEvent(new CustomEvent('sessionStateChanged'));
+      } else {
+        // Si el servidor dice que no hay sesión, limpiar
+        if (sessionStorage.getItem("Id")) {
+          sessionStorage.clear();
+          window.dispatchEvent(new CustomEvent('sessionStateChanged'));
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error en verificación global:", err);
+  }
+}
+
+// Inicializar al cargar el script
 initializeAuthButtons();
+verificarEstadoGlobal();
+
+// Escuchar cambios en la sesión desde otros scripts
+window.addEventListener("sessionStateChanged", initializeAuthButtons);
 
 // ===== EVENT LISTENERS =====
 
@@ -179,8 +221,11 @@ if (formData && !formData.dataset.listenerAdded) {
       .then((res) => res.json())
       .then((data) => {
 
-
         if (data.success) {
+          const loginDropdown = document.getElementById("loginDropdown");
+          if (loginDropdown) loginDropdown.classList.add("hidden");
+
+          localStorage.setItem("Id", data.id);
           sessionStorage.setItem("Id", data.id);
           sessionStorage.setItem("Role", data.role);
           sessionStorage.setItem("StatusNegocio", data.negocio_creado);
@@ -257,7 +302,36 @@ if (forgotForm && !forgotForm.dataset.listenerAdded) {
 //validar vinculacion de wpp
 
 export default async function estadoWhatsApp() {
+  // Primero verificamos el estado del tutorial
+  try {
+    const resTour = await fetch(`${ruta}/api/tour/general`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+    });
+    const tutorialStatus = await resTour.json();
 
+    // Si el tutorial está pendiente (0) y el script del tutorial está en la página
+    if (tutorialStatus === 0 && window.tutorialGeneralPresente) {
+      console.log("Tutorial pendiente, esperando a que termine para validar WhatsApp...");
+
+      // Escuchamos el evento de finalización una sola vez
+      window.addEventListener("tutorialTerminado", () => {
+        console.log("Tutorial detectado como terminado/cerrado, validando WhatsApp...");
+        ejecutarValidacionWhatsApp();
+      }, { once: true });
+
+      return;
+    }
+  } catch (err) {
+    console.error("Error al verificar tutorial desde navJs:", err);
+  }
+
+  // Si el tutorial ya terminó o no está el script, procedemos normalmente
+  ejecutarValidacionWhatsApp();
+}
+
+async function ejecutarValidacionWhatsApp() {
   fetch(`${ruta}/estadoWhatsApp`, {
     method: "GET",
     credentials: 'include',
@@ -266,19 +340,36 @@ export default async function estadoWhatsApp() {
     .then(data => {
       let estado = data.connected;
       if (estado === true) {
-
-        console.log("status 200");
-
+        console.log("WhatsApp vinculado (status 200)");
       } else {
-        // 2. Si no está vinculado, obtener el QR e iniciar el "reloj"
-        console.log("status 400");
-        alertaFallo("WhatsApp no vinculado");
+        console.log("WhatsApp no vinculado (status 400)");
+        alertaFalloDesaparece("WhatsApp no vinculado");
       }
     })
     .catch(err => {
       console.error("Error al verificar estado inicial:", err);
-      // Intentamos iniciar el proceso de todos modos por si es error de red temporal
-
     });
 }
 
+
+// ===== BLOG NAVIGATION =====
+
+export function setupBlogNavigation() {
+  const btnBlog = document.getElementById("btnBlog");
+  const btnNosotros = document.getElementById("btnNosotros");
+
+  if (btnBlog) {
+    btnBlog.addEventListener("click", () => {
+      window.location.href = "/Blog";
+    });
+  }
+
+  if (btnNosotros) {
+    btnNosotros.addEventListener("click", () => {
+      window.location.href = "/Nosotros";
+    });
+  }
+}
+
+// Inicializar al cargar el script
+document.addEventListener("DOMContentLoaded", setupBlogNavigation);

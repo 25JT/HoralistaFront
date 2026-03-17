@@ -1,5 +1,5 @@
 ---
-
+import BodyNotificacion from "./BodyNotificacion.astro";
 ---
 
 <link
@@ -11,7 +11,7 @@
   rel="stylesheet"
 />
 
-<main id="titulo" class="pt-20 bg-blue-50 w-screen h-screen">
+<main id="titulo" class="pt-20 bg-blue-50 w-screen h-screen gsap-reveal">
   <body class="font-display bg-background-light text-gray-800">
     <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8">
       <div class="mx-auto max-w-7xl">
@@ -189,6 +189,8 @@
     animation: fadeIn 0.2s ease-out;
   }
 </style>
+
+<BodyNotificacion />
 
 <script src="../utils/BodyCitasAgendadas.js"></script>
 <script src="../assets/Animaciones/animaAgendada.js"></script>

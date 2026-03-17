@@ -2,6 +2,8 @@ import { ruta } from "../utils/ruta.js";
 import { animarTitulo, animarParrafo, animarFormulario, animarTitulo2, animarParrafo2, animarControlCitas, animarTitulo3, animarParrafo3, miniTitulo, animarParrafo4, Rounded, prepareAnimations } from "../assets/Animaciones/animawelcome.js";
 import { alertaCheck2, alertaFallo, } from "../assets/Alertas/Alertas.js";
 
+
+
 // ============================================
 // SISTEMA DE CARGA PROGRESIVA Y PRIORIZADA
 // ============================================
@@ -54,8 +56,18 @@ function cargarAnimacionesProgresivamente() {
 	}
 }
 
-// Iniciar carga progresiva
-cargarAnimacionesProgresivamente();
+// Iniciar carga progresiva esperando a que las fuentes estén listas
+if (document.fonts) {
+	document.fonts.ready.then(() => {
+		cargarAnimacionesProgresivamente();
+	}).catch((err) => {
+		console.error("Error cargando fuentes, iniciando animaciones de todos modos:", err);
+		cargarAnimacionesProgresivamente();
+	});
+} else {
+	// Fallback para navegadores antiguos
+	window.onload = cargarAnimacionesProgresivamente;
+}
 
 const formData = document.getElementById("registro");
 let formSubmitted = false; // Bandera para controlar envíos
@@ -135,13 +147,3 @@ function TokenRegistro(correo, id) {
 let data = null;
 let error = null;
 
-try {
-	const res = await fetch(`${ruta}/`, {
-		credentials: 'include'
-	});
-	if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-	data = await res.json();
-} catch (err) {
-	console.error("❌ Error al hacer fetch:", err); // <-- esto ayuda
-	error = err.message;
-}

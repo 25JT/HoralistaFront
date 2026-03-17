@@ -2,6 +2,13 @@
 const idElement = document.getElementById("idservicio");
 const id = idElement ? idElement.dataset.id : null;
 
+// Obtener el ID del servicio del catálogo desde la URL (parámetro 's')
+const urlParams = new URLSearchParams(window.location.search);
+const idCatalogo = urlParams.get("s");
+
+// Obtener citaId de sessionStorage si existe (modo edición)
+const citaId = sessionStorage.getItem("editCitaId");
+
 // Ensure ID exists
 if (idElement && id) {
     idElement.textContent = "ID Establecimiento: " + id;
@@ -10,11 +17,13 @@ if (idElement && id) {
 import { ruta } from "../utils/ruta.js";
 import gsap from "gsap";
 import {
+    alertaCheck3,
     alertaCheck4,
     alertaFallo,
     alertaMal,
 } from "../assets/Alertas/Alertas.js";
 const userid = sessionStorage.getItem("Id");
+const userRole = sessionStorage.getItem("Role");
 
 // estado de los dias que trabajara el establecimiento
 let diasTrabajoPermitidos = []; // los dias que estan permitidos se muestra con un numero  (0=dom, 1=lun, ..., 6=sab)
@@ -70,7 +79,8 @@ async function cargarHorasDisponibles() {
             credentials: 'include',
             body: JSON.stringify({
                 id: idServicio,
-                fecha: fecha
+                fecha: fecha,
+                id_catalogo: idCatalogo
             }),
         });
 
@@ -81,6 +91,17 @@ async function cargarHorasDisponibles() {
 
         if (data.success) {
             console.log(data);
+
+            // Actualizar el nombre del servicio en el campo de mensaje/notas dinámicamente
+            // Solo si no estamos en modo edición (donde las notas ya vienen de la cita)
+            const mensajeInput = document.getElementById("mensaje");
+            const contadorMensaje = document.getElementById("contador-mensaje");
+            if (mensajeInput && !citaId) {
+                mensajeInput.value = data.nombreServicio || "";
+                if (contadorMensaje) {
+                    contadorMensaje.textContent = 100 - mensajeInput.value.length;
+                }
+            }
 
             mostrarHorasDisponibles(data);
 
@@ -99,65 +120,19 @@ async function cargarHorasDisponibles() {
 
 function mostrarHorasDisponibles(data) {
     const contenedor = document.getElementById("horas");
-    const intervaloCitas = data.rango.intervaloCitas || 60; // 60 min default en caso de que el intevalo citas este vacio
-    const horaInicio = data.rango.hora_inicio; // ejm., "06:00:00" o "6:00"
-    const horaFin = data.rango.hora_fin; // ejm., "19:00:00" o "7:00"
-
     contenedor.innerHTML = "";
 
-    if (!horaInicio || !horaFin) {
-        contenedor.innerHTML = `
-            <div class="col-span-full text-center py-4 text-gray-500">
-                No hay horario configurado para este establecimiento.
-            </div>
-        `;
-        return;
-    }
+    // Usamos directamente las horas que el backend ya validó y filtró por nosotros
+    let horasDisponibles = data.disponibles || [];
 
-    // parseamos las horas inicio y fin
-    const parseTime = (timeStr) => {
-        const parts = timeStr.split(':');
-        return {
-            hours: parseInt(parts[0]),
-            minutes: parseInt(parts[1] || 0)
-        };
-    };
-
-    const inicio = parseTime(horaInicio);
-    const fin = parseTime(horaFin);
-
-    // convertimos a minutos esto aplica por si el suario seleciono 120 min o 180 min
-    const inicioMinutos = inicio.hours * 60 + inicio.minutes;
-    const finMinutos = fin.hours * 60 + fin.minutes;
-
-    // Generamos todas las horas disponibles
-    const horasGeneradas = [];
-    let currentMinutos = inicioMinutos;
-
-    while (currentMinutos <= finMinutos) {
-        const hours = Math.floor(currentMinutos / 60);
-        const minutes = currentMinutos % 60;
-        const hora24 = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
-        horasGeneradas.push(hora24);
-        currentMinutos += intervaloCitas;
-
-    }
-
-    console.log(horasGeneradas);
-
-    // filtro para que no se muestren horas ocupadas
-    const ocupadasSet = new Set(data.ocupadas || []);
-    let horasDisponibles = horasGeneradas.filter(hora => !ocupadasSet.has(hora));
-
-
-    // filtro para que no se muestren horas pasadas y horas menos de 20 minutos en el futuro para hoy
+    // --- FILTRO DE TIEMPO REAL (SOLO PARA HOY) ---
+    // Mantenemos este filtro en el frontend porque depende del reloj del usuario
     const fechaSeleccionada = document.getElementById("fecha").value;
     const hoy = new Date();
     const fechaHoy = hoy.toISOString().split("T")[0];
 
     if (fechaSeleccionada === fechaHoy) {
-
-        // obtenemos la hora actual y le sumamos 20 minutos
+        // Obtenemos la hora actual y le sumamos 20 minutos de margen
         const ahora = new Date();
         ahora.setMinutes(ahora.getMinutes() + 20);
         const horaActualMinutos = ahora.getHours() * 60 + ahora.getMinutes();
@@ -168,6 +143,7 @@ function mostrarHorasDisponibles(data) {
             return horaSlotMinutos >= horaActualMinutos;
         });
     }
+
 
 
     if (horasDisponibles.length === 0) {
@@ -376,15 +352,77 @@ fetch(`${ruta}/datosUsuario`, {
         if (tituloNegocio) tituloNegocio.textContent = "Agendar en " + Establecimiento.nombre_establecimiento;
 
         actualizarCirculosDias(Establecimiento.dias_trabajo || "");
+
+        // Si estamos en modo edición, cargar los datos de la cita
+        if (citaId) {
+            cargarDatosCitaEdicion();
+        }
     })
     .catch((err) => {
         console.error("Error al obtener datos:", err);
     });
 
+// Función para cargar datos de la cita en modo edición
+async function cargarDatosCitaEdicion() {
+    try {
+        const res = await fetch(`${ruta}/obtenerCita`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: citaId }),
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+            const cita = data.data;
+            // Pre-llenar campos
+            if (document.getElementById("fecha")) {
+                const fechaLimpia = cita.fecha.split('T')[0];
+                document.getElementById("fecha").value = fechaLimpia;
+                // Disparar cambio para cargar horas
+                await cargarHorasDisponibles();
+
+                // Marcar la hora actual de la cita
+                if (document.getElementById("hora")) {
+                    document.getElementById("hora").value = cita.hora;
+                    // Intentar seleccionar el botón de hora correspondiente
+                    setTimeout(() => {
+                        const botonesHora = document.querySelectorAll('.hora');
+                        botonesHora.forEach(btn => {
+                            if (btn.dataset.id === cita.hora) {
+                                btn.click();
+                            }
+                        });
+                    }, 500);
+                }
+            }
+            if (document.getElementById("mensaje")) {
+                document.getElementById("mensaje").value = cita.mensaje || "";
+            }
+
+            // Cambiar texto del botón
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.innerHTML = '<span>Actualizar Cita</span>';
+            }
+
+            // Cambiar título si existe
+            const tituloNegocio = document.getElementById("nombre-negocio-titulo");
+            if (tituloNegocio) {
+                tituloNegocio.textContent = "Modificar Cita";
+            }
+        }
+    } catch (error) {
+        console.error("Error al cargar datos de la cita:", error);
+    }
+}
+
 // --- CONTADOR DE CARACTERES MENSAJE ---
 const mensajeInput = document.getElementById("mensaje");
 const contadorMensaje = document.getElementById("contador-mensaje");
 if (mensajeInput && contadorMensaje) {
+    // Ya no poblamos desde sessionStorage para evitar datos "pegajosos".
+    // Ahora se puebla dinámicamente en cargarHorasDisponibles() desde la base de datos via el backend.
+
     mensajeInput.addEventListener("input", function () {
         const restante = 100 - mensajeInput.value.length;
         contadorMensaje.textContent = restante;
@@ -439,15 +477,17 @@ if (form) {
         const fechaEspecialObj = listaFechasEspeciales.find(item => item.fecha.split('T')[0] === fecha);
         const esFechaEspecial = fechaEspecialObj ? (fechaEspecialObj.es_laborable == 1 ? 1 : 0) : null;
 
-        console.log("esFechaEspecial", esFechaEspecial);
+        // console.log("esFechaEspecial", esFechaEspecial);
 
-        const response = await fetch(`${ruta}/agendarcita`, {
+        const response = await fetch(`${ruta}/${citaId ? 'actCita' : 'agendarcita'}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: 'include',
             body: JSON.stringify({
                 userid,
                 id,
+                id_catalogo: idCatalogo, // Enviamos el ID del servicio del catálogo desde la URL
+                citaId, // Enviamos el ID de la cita si estamos editando
                 fecha,
                 hora,
                 mensaje,
@@ -476,7 +516,17 @@ if (form) {
             alertaMal(data.message);
             return;
         }
-        alertaCheck4("Cita agendada correctamente");
+
+        // Limpiar citaId de sessionStorage después de un éxito si estábamos editando
+        if (citaId) {
+            sessionStorage.removeItem("editCitaId");
+        }
+
+        if (userRole === "profesional") {
+            alertaCheck3(citaId ? "Cita actualizada correctamente" : "Cita agendada correctamente");
+        } else {
+            alertaCheck4(citaId ? "Cita actualizada correctamente" : "Cita agendada correctamente");
+        }
     });
 }
 
@@ -578,7 +628,7 @@ function cargarFechasEspeciales() {
 const btnVolver = document.getElementById("volver");
 if (btnVolver) {
     btnVolver.addEventListener("click", function () {
-        history.back();
+        window.location.href = "/PrincipalCliente";
     });
 }
 

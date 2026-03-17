@@ -1,9 +1,11 @@
+import { io } from "socket.io-client";
 import { ruta } from "../utils/ruta.js";
 import { validarInicioCliente } from "../utils/validarInicio.js";
 import { alertaCheck, alertaFallo, alertaMal, alertaConfirm } from "../assets/Alertas/Alertas.js";
 import flatpickr from "flatpickr";
 import { Spanish } from "flatpickr/dist/l10n/es.js";
 import "flatpickr/dist/flatpickr.min.css";
+
 validarInicioCliente();
 const userid = sessionStorage.getItem("Id");
 
@@ -17,6 +19,8 @@ let citasFiltradas = [];
 // Variables de filtro
 let filtroFechaInicio = null;
 let filtroFechaFin = null;
+
+
 
 // Inicializar Flatpickr y eventos
 document.addEventListener("DOMContentLoaded", () => {
@@ -87,7 +91,7 @@ function aplicarFiltros() {
         // Filtro por Búsqueda (Servicio o Establecimiento)
         if (busqueda) {
             const servicio = (cita.servicio || "").toLowerCase();
-            const establecimiento = (cita.nombre_servicio || "").toLowerCase();
+            const establecimiento = (cita.nombre_establecimiento || "").toLowerCase();
             if (!servicio.includes(busqueda) && !establecimiento.includes(busqueda)) {
                 return false;
             }
@@ -120,9 +124,11 @@ function formatearHora(hora) {
 // Función para obtener clase de estado
 function obtenerClaseEstado(estado) {
     const estados = {
-        confirmada: "bg-green-100 text-green-800",
+        confirmada: "bg-purple-100 text-purple-800",
         pendiente: "bg-yellow-100 text-yellow-800",
         cancelada: "bg-red-100 text-red-800",
+        "en curso": "bg-blue-100 text-blue-800",
+        completada: "bg-green-100 text-green-800",
     };
     return estados[estado.toLowerCase()] || "bg-gray-100 text-gray-800";
 }
@@ -142,13 +148,11 @@ function mostrarDetallesCita(agenda) {
     });
 
     const modalHTML = `
-    <div id="modal-detalles" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
-
+<div id="modal-detalles" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
 <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
 <div class="w-full max-w-2xl bg-white  rounded-xl shadow-lg flex flex-col">
 <div class="p-6 border-b border-gray-200  flex justify-between items-center">
 <h2 class="text-xl font-bold text-gray-900 ">Detalles de la Cita</h2>
-
 </div>
 <div class="p-6 flex-1 overflow-y-auto space-y-6">
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
@@ -162,24 +166,23 @@ function mostrarDetallesCita(agenda) {
 </div>
 <div>
 <p class="text-sm font-medium text-gray-500 ">Establecimiento</p>
-<p class="text-base font-semibold text-gray-800 ">${agenda.nombre_servicio || "N/A"}</p>
+<p class="text-base font-semibold text-gray-800 ">${agenda.nombre_establecimiento || "N/A"}</p>
 </div>
 <div>
 <p class="text-sm font-medium text-gray-500 ">Servicio</p>
-<p class="text-base font-semibold text-gray-800 ">${agenda.servicio || "Estilista"}</p>
+<p class="text-base font-semibold text-gray-800 ">${agenda.servicio || "Servicio General"}</p>
 </div>
-
 <div>
 <p class="text-sm font-medium text-gray-500 ${obtenerClaseEstado(agenda.estado)} " >${capitalizar(agenda.estado)}</p>
 </div>
 </div>
 </div>
 <div class="p-6 border-t border-gray-200  flex flex-col sm:flex-row-reverse gap-3">
-<button class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<button id="editar-cita" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
 <span class="material-symbols-outlined text-base">edit</span>
 <span>Modificar</span>
 </button>
-<button id="cerrar-modal" id="cerrar-modal-btn"   class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<button id="cerrar-modal" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
 <span class="material-symbols-outlined text-base">cancel</span>
 <span>Cerrar</span>
 </button>
@@ -192,9 +195,19 @@ function mostrarDetallesCita(agenda) {
 
     // Event listeners para cerrar modal
     document.getElementById("cerrar-modal").addEventListener("click", cerrarModal);
-    document.getElementById("cerrar-modal-btn").addEventListener("click", cerrarModal);
     document.getElementById("modal-detalles").addEventListener("click", (e) => {
         if (e.target.id === "modal-detalles") cerrarModal();
+    });
+
+    // Event listener para editar cita
+    document.getElementById("editar-cita").addEventListener("click", () => {
+        if (agenda.id_pservicio && agenda.id) {
+            sessionStorage.setItem("editCitaId", agenda.id);
+            window.location.href = `/Agendar/${agenda.id_pservicio}`;
+        } else {
+            console.error("No se encontró el ID del servicio o de la cita", agenda);
+            alertaMal("Error al intentar editar la cita");
+        }
     });
 }
 
@@ -229,9 +242,6 @@ async function cancelarCita(id, estado) {
                 return;
             }
             alertaCheck("Cita cancelada correctamente");
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
         })
         .catch((error) => {
             console.error("Error al cancelar cita:", error);
@@ -280,8 +290,8 @@ function renderizarCitas() {
         fila.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${formatearFecha(agenda.fecha)}</td>
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${formatearHora(agenda.hora)}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-gray-800">${agenda.nombre_servicio || "N/A"}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-gray-800">${agenda.servicio || "Estilista"}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-gray-800">${agenda.nombre_establecimiento || "N/A"}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-gray-800">${agenda.servicio || "Servicio General"}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${obtenerClaseEstado(agenda.estado)}">
             ${capitalizar(agenda.estado)}
@@ -370,29 +380,56 @@ function cambiarPagina(direccion) {
         }
     }
 }
-
-// Cargar citas desde el servidor
-fetch(`${ruta}/mostrarCitas`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userid }),
-    credentials: 'include',
-})
-    .then((response) => response.json())
-    .then((data) => {
-        if (!data.success) {
-            console.error("Error en respuesta:", data.message);
-            return;
-        }
-
-        todasLasCitas = data.data;
-        citasFiltradas = todasLasCitas; // Inicialmente todas
-        totalCitas = todasLasCitas.length;
-
-        // Renderizar primera página
-        renderizarCitas();
+// Función para cargar citas desde el servidor
+function cargarCitas() {
+    fetch(`${ruta}/mostrarCitas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userid }),
+        credentials: 'include',
     })
-    .catch((error) => {
-        console.error("Error al obtener datos:", error);
-        alertaFallo("Error al cargar las citas");
-    });
+        .then((response) => response.json())
+        .then((data) => {
+
+            if (!data.success) {
+                console.error("❌ Error en respuesta:", data.message);
+                return;
+            }
+
+            todasLasCitas = data.data;
+            citasFiltradas = todasLasCitas; // Inicialmente todas
+            totalCitas = todasLasCitas.length;
+
+
+            // Renderizar página actual
+            renderizarCitas();
+        })
+        .catch((error) => {
+            // console.error("❌ Error al obtener datos:", error);
+            alertaFallo("Error al cargar las citas");
+        });
+}
+
+// Carga inicial
+cargarCitas();
+
+// --- Configuración de Socket.io para tiempo real ---
+
+const socket = io(ruta, {
+    withCredentials: true
+});
+
+socket.on("connect", () => {
+    // console.log("🚀 [Socket.io] Conectado exitosamente al servidor en:", ruta);
+    // console.log("ID de Socket:", socket.id);
+});
+
+// Escuchar cambios de estado desde el backend
+socket.on("actualizar_estado_citas", (data) => {
+    cargarCitas();
+});
+
+socket.on("connect_error", (error) => {
+    //   console.error("❌ [Socket.io] Error de conexión:", error.message);
+    console.log("Asegúrate de que 'ruta' coincida con tu servidor activo:", ruta);
+});

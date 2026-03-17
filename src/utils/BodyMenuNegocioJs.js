@@ -1,10 +1,13 @@
+import { io } from "socket.io-client";
 import { ruta } from "../utils/ruta.js";
 import { validarInicioProfesional } from "./validarInicio.js";
-import { alertaConfirm, alertaCheck, alertaFallo } from "../assets/Alertas/Alertas.js";
+import { alertaConfirm, alertaCheck, alertaFallo, alertaMal } from "../assets/Alertas/Alertas.js";
 import flatpickr from "flatpickr";
 import { Spanish } from "flatpickr/dist/l10n/es.js";
 import "flatpickr/dist/flatpickr.min.css";
 import estadoWhatsApp from "./navJs.js";
+
+
 
 estadoWhatsApp();
 validarInicioProfesional();
@@ -16,6 +19,7 @@ const citasPorPagina = 5;
 let totalCitas = 0;
 let todasLasCitas = [];
 let citasFiltradas = [];
+let globalIdPservicio = null; // Variable global para el ID del servicio
 
 // Variables de filtro
 let filtroFechaInicio = null;
@@ -128,12 +132,104 @@ function obtenerClaseEstado(estado) {
     if (!estado) return "bg-gray-100 text-gray-800";
     const estadoLower = String(estado).toLowerCase();
     const estados = {
-        confirmada: "bg-green-100 text-green-800",
+        confirmada: "bg-purple-100 text-purple-800",
         pendiente: "bg-yellow-100 text-yellow-800",
         cancelada: "bg-red-100 text-red-800",
+        "en curso": "bg-blue-100 text-blue-800",
+        completada: "bg-green-100 text-green-800",
     };
     if (estadoLower == "0") return estados.pendiente;
     return estados[estadoLower] || "bg-gray-100 text-gray-800";
+}
+
+// Función para mostrar el modal personalizado de cambio de estado
+function mostrarModalCambioEstado(agenda) {
+    const modalHTML = `
+    <div id="modal-cambio-estado" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-60 p-4">
+        <div class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-md bg-white rounded-xl shadow-lg flex flex-col animate-fade-in">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-900">Cambiar Estado</h2>
+                    <button id="cerrar-modal-estado" class="flex w-auto cursor-pointer items-center justify-center gap-2 rounded-lg h-10 px-4 text-black border-2 border-blue-500 hover:bg-blue-500 hover:text-white text-sm font-bold transition-all">
+                        <span class="material-symbols-outlined text-base">cancel</span>
+                        <span>Cerrar</span>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-sm text-gray-500 italic">Selecciona el nuevo estado para la reserva de <strong>${agenda.nombre || 'Cliente'}</strong></p>
+                    <div class="flex flex-col gap-3">
+                        <button class="opcion-estado w-full p-4 rounded-xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-between group" data-estado="curso">
+                            <span class="font-semibold text-gray-700 group-hover:text-white">En curso</span>
+                            <span class="material-symbols-outlined text-blue-500">schedule</span>
+                        </button>
+                        <button class="opcion-estado w-full p-4 rounded-xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-between group" data-estado="completada">
+                            <span class="font-semibold text-gray-700 group-hover:text-white">Finalizada</span>
+                            <span class="material-symbols-outlined text-green-500">check_circle</span>
+                        </button>
+                   
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <button id="confirmar-cambio-estado" disabled class="w-full h-12 bg-gray-100 text-gray-400 font-bold rounded-xl transition-all cursor-not-allowed">
+                        Confirmar Cambio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    let estadoSeleccionado = null;
+    const btnConfirmar = document.getElementById("confirmar-cambio-estado");
+    const opciones = document.querySelectorAll(".opcion-estado");
+
+    opciones.forEach(op => {
+        op.addEventListener("click", () => {
+            opciones.forEach(o => o.classList.remove("border-blue-500", "bg-blue-50"));
+            op.classList.add("border-blue-500", "bg-blue-50");
+            estadoSeleccionado = op.dataset.estado;
+            btnConfirmar.disabled = false;
+            btnConfirmar.classList.remove("bg-gray-100", "text-gray-400", "cursor-not-allowed");
+            btnConfirmar.classList.add("bg-blue-600", "text-white", "hover:bg-blue-700");
+        });
+    });
+
+    document.getElementById("cerrar-modal-estado").addEventListener("click", () => {
+        document.getElementById("modal-cambio-estado").remove();
+    });
+
+    btnConfirmar.addEventListener("click", async () => {
+        // console.log(`Confirmando cambio de estado a "${estadoSeleccionado}" para el usuario con ID: ${agenda.usuario_id} "ID de agenda:", ${agenda.agenda_id}`);
+
+        // ESPACIO PARA EL FETCH A LA BD
+
+        try {
+            const res = await fetch(`${ruta}/api/Reservas/actualizarEstado`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    agenda_id: agenda.agenda_id,
+                    nuevoEstado: estadoSeleccionado,
+                    usuario_id: agenda.usuario_id
+                }),
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alertaCheck("Estado actualizado correctamente");
+            } else {
+                alertaFallo("Error al actualizar estado");
+            }
+        } catch (error) {
+            console.error("Error en fetch:", error);
+            alertaFallo("Error de conexión");
+        }
+
+        const modal = document.getElementById("modal-cambio-estado");
+        if (modal) modal.remove();
+    });
 }
 
 // Función para capitalizar primera letra
@@ -144,7 +240,7 @@ function capitalizar(texto) {
 }
 
 // Función para mostrar modal con detalles de la cita
-function mostrarDetallesCita(agenda) {
+function mostrarDetallesCita(agenda, idPservicio) {
     const fechaFormateada = new Date(agenda.fecha).toLocaleDateString("es-CO", {
         weekday: "long",
         year: "numeric",
@@ -159,7 +255,10 @@ function mostrarDetallesCita(agenda) {
 <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg flex flex-col">
 <div class="p-6 border-b border-gray-200 flex justify-between items-center">
 <h2 class="text-xl font-bold text-gray-900">Detalles de la Reserva</h2>
-
+<button id="cerrar-modal" id="cerrar-modal-btn"  class=" flex w-auto sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500 hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-base">cancel</span>
+<span>Cerrar</span>
+</button>
 </div>
 <div class="p-6 flex-1 overflow-y-auto space-y-6">
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
@@ -176,6 +275,10 @@ function mostrarDetallesCita(agenda) {
 <p class="text-base font-semibold text-gray-800">${agenda.nombre || "N/A"}</p>
 </div>
 <div>
+<p class="text-sm font-medium text-gray-500">Servicio</p>
+<p class="text-base font-semibold text-gray-800">${agenda.servicio || "Servicio General"}</p>
+</div>
+<div>
 <p class="text-sm font-medium text-gray-500">Mensaje/Notas</p>
 <p class="text-base font-semibold text-gray-800">${agenda.notas || "Sin notas"}</p>
 </div>
@@ -186,11 +289,17 @@ function mostrarDetallesCita(agenda) {
 </div>
 </div>
 <div class="p-6 border-t border-gray-200 flex flex-col sm:flex-row-reverse gap-3">
-<!-- Botón Modificar podría ir aquí si se implementa -->
-<button id="cerrar-modal" id="cerrar-modal-btn" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500 hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
-<span class="material-symbols-outlined text-base">cancel</span>
-<span>Cerrar</span>
+<button id="editar-cita" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-base">edit</span>
+<span>Modificar</span>
 </button>
+<button id="cambiar-estado" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 text-black border-2 border-blue-500  hover:bg-blue-500 hover:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined">
+change_circle
+</span>
+<span>Cambiar Estado</span>
+</button>
+
 </div>
 </div>
 </div>
@@ -206,6 +315,26 @@ function mostrarDetallesCita(agenda) {
 
     document.getElementById("modal-detalles").addEventListener("click", (e) => {
         if (e.target.id === "modal-detalles") cerrarModal();
+    });
+
+    // Event listener para cambiar estado
+    const btnCambiarEstado = document.getElementById("cambiar-estado");
+    if (btnCambiarEstado) {
+        btnCambiarEstado.addEventListener("click", () => {
+            //     console.log("Menu de acciones abierto para el usuario con ID:", agenda.usuario_id);
+            mostrarModalCambioEstado(agenda);
+        });
+    }
+
+    // Event listener para editar cita
+    document.getElementById("editar-cita").addEventListener("click", () => {
+        if (idPservicio && agenda.agenda_id) {
+            sessionStorage.setItem("editCitaId", agenda.agenda_id);
+            window.location.href = `/Agendar/${idPservicio}`;
+        } else {
+            console.error("No se encontró el ID del servicio o de la cita", agenda);
+            alertaMal("Error al intentar editar la cita");
+        }
     });
 }
 
@@ -236,10 +365,6 @@ async function cancelarCita(Agid, Useid, estado) {
 
         if (res.ok) {
             alertaCheck("✅ Cita cancelada con éxito");
-            // Recargar o re-renderizar
-            setTimeout(() => {
-                location.reload();
-            }, 700);
         } else {
             alertaFallo("❌ Error al cancelar la cita: " + (respuesta.message || "Intenta de nuevo"));
         }
@@ -298,6 +423,7 @@ function renderizarCitas() {
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${fechaStr}</td>
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${horaStr}</td>
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${clienteStr}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-gray-800">${agenda.servicio || "Servicio General"}</td>
         <td class="px-6 py-4 whitespace-nowrap text-gray-800">${mensajeStr}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${obtenerClaseEstado(agenda.estado)}">
@@ -319,7 +445,7 @@ function renderizarCitas() {
 
         // Event listener para botón "Ver detalles"
         fila.querySelector(".btn-ver").addEventListener("click", () => {
-            mostrarDetallesCita(agenda);
+            mostrarDetallesCita(agenda, agenda.idPservicio || globalIdPservicio);
         });
 
         // Event listener para botón "Cancelar"
@@ -384,41 +510,65 @@ function cambiarPagina(direccion) {
 }
 
 // Cargar citas desde el servidor
-fetch(`${ruta}/api/Reservas`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userid }),
-    credentials: 'include',
-})
-    .then((response) => response.json())
-    .then((respuesta) => {
-        const data = respuesta.data || [];
+function cargarCitasMenu() {
 
-        const nombreEstablecimiento = respuesta.NombreEstablecimiento;
-        todasLasCitas = data;
-        citasFiltradas = todasLasCitas; // Inicialmente todas
-        totalCitas = todasLasCitas.length;
-
-        const nombreNegocioEl = document.getElementById("nombreNegocio");
-        if (nombreNegocioEl && nombreEstablecimiento) {
-            nombreNegocioEl.innerHTML = `HOLA ${nombreEstablecimiento}`;
-        }
-
-        // Renderizar primera página
-        renderizarCitas();
-
-        // Configurar event listeners para botones de paginación
-        const btnAnterior = document.getElementById("btn-anterior");
-        const btnSiguiente = document.getElementById("btn-siguiente");
-
-        if (btnAnterior) {
-            btnAnterior.addEventListener("click", () => cambiarPagina("anterior"));
-        }
-
-        if (btnSiguiente) {
-            btnSiguiente.addEventListener("click", () => cambiarPagina("siguiente"));
-        }
+    fetch(`${ruta}/api/Reservas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userid }),
+        credentials: 'include',
     })
-    .catch((error) => {
-        console.error("Error al obtener datos:", error);
-    });
+        .then((response) => response.json())
+        .then((respuesta) => {
+
+            const data = respuesta.data || [];
+            const nombreEstablecimiento = respuesta.NombreEstablecimiento;
+            globalIdPservicio = respuesta.idPservicio || (data.length > 0 ? data[0].idPservicio : null);
+
+            todasLasCitas = data;
+            citasFiltradas = todasLasCitas;
+            totalCitas = todasLasCitas.length;
+
+
+
+            const nombreNegocioEl = document.getElementById("nombreNegocio");
+            if (nombreNegocioEl && nombreEstablecimiento) {
+                nombreNegocioEl.innerHTML = `HOLA ${nombreEstablecimiento}`;
+            }
+
+            renderizarCitas();
+        })
+        .catch((error) => {
+            console.error("❌ Error al obtener datos:", error);
+        });
+}
+
+// Carga inicial
+cargarCitasMenu();
+
+// Configurar event listeners para botones de paginación
+document.addEventListener("DOMContentLoaded", () => {
+    const btnAnterior = document.getElementById("btn-anterior");
+    const btnSiguiente = document.getElementById("btn-siguiente");
+    if (btnAnterior) btnAnterior.addEventListener("click", () => cambiarPagina("anterior"));
+    if (btnSiguiente) btnSiguiente.addEventListener("click", () => cambiarPagina("siguiente"));
+});
+
+// Configuración de Socket.io para tiempo real
+const socket = io(ruta, {
+    withCredentials: true,
+    transports: ["websocket", "polling"]
+});
+
+socket.on("connect", () => {
+    // console.log("🚀 [Socket.io] Conectado exitosamente al servidor en:", ruta);
+    // console.log("ID de Socket:", socket.id);
+});
+
+socket.on("actualizar_estado_citas", (data) => {
+    cargarCitasMenu();
+});
+
+socket.on("connect_error", (error) => {
+    // console.error("❌ [Socket.io] Error de conexión:", error.message);
+});
