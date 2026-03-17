@@ -11,7 +11,12 @@ export default defineConfig({
   adapter: netlify(),
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: ['driver.js', 'socket.io-client']
+      }
+    }
   },
 
   integrations: [react()]
